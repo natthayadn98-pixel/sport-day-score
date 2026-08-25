@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้ากรรมการ - ฟอร์มกรอกคะแนนกีฬาสี</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="icon"  href="logo.jpg">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #245a49;
+      --deep-green: #194537;
+      --mint: #dff5e9;
+      --pale-mint: #f4fcf7;
+      --line: #c8e7d4;
+      --soft-ink: #5d7d70;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      width: 100%;
+      margin: 0;
+      color: var(--deep-green);
+      font-family: "Noto Sans Thai", sans-serif;
+    }
+
+    .app-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+      overflow: hidden;
+      padding: 2rem 1.25rem;
+    }
+
+    .leaf-orb {
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      filter: blur(1px);
+    }
+
+    .leaf-orb-one {
+      top: -8rem;
+      left: -7rem;
+      width: 24rem;
+      height: 24rem;
+      background: rgba(152, 219, 178, 0.42);
+    }
+
+    .leaf-orb-two {
+      right: -9rem;
+      bottom: -10rem;
+      width: 28rem;
+      height: 28rem;
+      background: rgba(191, 232, 204, 0.62);
+    }
+
+    .leaf-orb-three {
+      top: 25%;
+      right: 8%;
+      width: 5rem;
+      height: 5rem;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .score-card {
+      box-shadow: 0 25px 60px rgba(37, 90, 73, 0.14);
+      animation: rise-in .65s ease-out both;
+    }
+
+    .hero-ribbon {
+      position: relative;
+      overflow: hidden;
+      background-color: #f4fcf7;
+    }
+
+    .hero-ribbon::after {
+      position: absolute;
+      right: -1.5rem;
+      bottom: -3rem;
+      width: 11rem;
+      height: 11rem;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+      border-radius: 999px;
+      content: "";
+    }
+
+    .choice-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    /* ตารางสำหรับปุ่มสี (4 คอลัมน์) */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+
+    .choice-btn {
+      flex: 1 1 auto;
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      background: #ffffff;
+      color: var(--soft-ink);
+      padding: 0.6rem 0.8rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* จัดรูปแบบปุ่มสีเฉพาะ ให้ไอคอนอยู่ด้านบน */
+    .choice-btn.color-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.6rem 0.2rem;
+    }
+
+    .color-emoji { font-size: 1.25rem; line-height: 1; }
+    .color-name { font-size: 0.75rem; line-height: 1; }
+
+    .choice-btn:hover {
+      border-color: #9bcfb0;
+      background: #f4fcf7;
+    }
+
+    .choice-btn.active {
+      border-color: var(--forest);
+      background: var(--mint);
+      color: var(--forest);
+      font-weight: 700;
+      box-shadow: 0 0 0 3px rgba(91, 167, 119, 0.16);
+    }
+
+    .field-control {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      background: #ffffff;
+      color: var(--deep-green);
+      outline: none;
+      padding: 0.84rem 1rem;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+
+    .field-control:hover { border-color: #9bcfb0; }
+
+    .field-control:focus {
+      border-color: #4f9a72;
+      box-shadow: 0 0 0 4px rgba(91, 167, 119, 0.16);
+    }
+
+    .field-control::placeholder { color: #91aa9d; }
+
+    .score-control {
+      padding-right: 4.5rem;
+      font-family: "Fraunces", serif;
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .submit-action {
+      background-color: #245a49;
+      color: white;
+      box-shadow: 0 12px 24px rgba(41, 121, 79, .25);
+      transition: transform .2s ease, filter .2s ease, box-shadow .2s ease;
+    }
+
+    .submit-action:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.03);
+      box-shadow: 0 16px 28px rgba(41, 121, 79, .3);
+    }
+
+    .submit-action:active { transform: translateY(0); }
+
+    .submit-action:disabled {
+      cursor: wait;
+      opacity: .68;
+      transform: none;
+    }
+
+    .status-message { display: none; }
+
+    .status-message.is-visible {
+      display: flex;
+      animation: rise-in .3s ease-out both;
+    }
+
+    .score-number { font-family: "Fraunces", serif; }
+
+    .tiny-leaf { animation: float 4s ease-in-out infinite; }
+
+    @keyframes rise-in {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-8deg); }
+      50% { transform: translateY(-7px) rotate(6deg); }
+    }
+
+    @media (min-width: 640px) {
+      .color-grid { gap: 0.75rem; }
+      .color-name { font-size: 0.9rem; }
+      .choice-btn.color-btn { padding: 0.75rem 0.5rem; }
+    }
+
+    @media (max-width: 640px) {
+      .app-wrapper { padding: 1rem 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-wrapper">
+   <div class="leaf-orb leaf-orb-one"></div>
+   <div class="leaf-orb leaf-orb-two"></div>
+   <div class="leaf-orb leaf-orb-three"></div>
+   <main class="relative z-10 mx-auto w-full max-w-2xl">
+    <section class="score-card overflow-hidden rounded-[2rem] border border-white/90 bg-white">
+     <header class="hero-ribbon px-6 pb-8 pt-8 sm:px-10 sm:pb-9 sm:pt-10 bg-mint">
+      <div class="relative z-10 flex items-start justify-between gap-5">
+       <div>
+        <div class="mb-5 flex items-center gap-3">
+         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/75 text-[#287352] shadow-sm" aria-hidden="true">
+            <i data-lucide="trophy" style="width:24px;height:24px"></i>
+         </div>
+         <span class="rounded-full px-3 py-1 text-sm font-bold tracking-wide bg-[#287352] text-white">สำหรับกรรมการ</span>
+        </div>
+        <h1 class="max-w-xl text-2xl font-bold leading-tight">ระบบบันทึกคะแนนกีฬาสี</h1>
+        <p class="mt-3 text-sm max-w-xl leading-relaxed text-[#5d7d70]">กรุณาเลือกประเภทกีฬาและสีที่ได้รับรางวัล จากนั้นระบุคะแนนให้ถูกต้องก่อนกดบันทึกข้อมูล</p>
+       </div>
+       <i data-lucide="sprout" class="tiny-leaf mt-2 shrink-0 text-[#4e9b70]" style="width: 30px; height: 30px;" aria-hidden="true"></i>
+      </div>
+     </header>
+
+     <div class="px-6 pb-8 pt-6 sm:px-10 sm:pb-10">
+      <form id="score-form" novalidate>
+       <div class="grid gap-6">
+        
+        <div class="grid gap-6">
+         <!-- ปุ่มประเภทกีฬา -->
+         <div>
+            <label class="mb-3 block font-bold">ประเภทกีฬา</label> 
+            <div class="choice-group">
+                <button type="button" class="choice-btn sport-btn" data-value="ฟุตบอล">ฟุตบอล</button>
+                <button type="button" class="choice-btn sport-btn" data-value="บาสเกตบอล">บาสเกตบอล</button>
+                <button type="button" class="choice-btn sport-btn" data-value="วิ่งผลัด">วิ่งผลัด</button>
+                <button type="button" class="choice-btn sport-btn" data-value="ชักเย่อ">ชักเย่อ</button>
+                <button type="button" class="choice-btn sport-btn" data-value="กองเชียร์">กองเชียร์</button>
+            </div>
+         </div>
+
+         <!-- ปุ่มสีที่แบ่งแถวละ 4 สี -->
+         <div>
+            <label class="mb-3 block font-bold">สีที่ได้คะแนน</label> 
+            <div class="color-grid">
+                <button type="button" class="choice-btn color-btn" data-value="สีแดง">
+                    <span class="color-emoji">❤️</span>
+                    <span class="color-name">สีแดง</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีเหลือง">
+                    <span class="color-emoji">💛</span>
+                    <span class="color-name">สีเหลือง</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีเขียว">
+                    <span class="color-emoji">💚</span>
+                    <span class="color-name">สีเขียว</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีฟ้า">
+                    <span class="color-emoji">🩵</span>
+                    <span class="color-name">สีฟ้า</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีม่วง">
+                    <span class="color-emoji">💜</span>
+                    <span class="color-name">สีม่วง</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีส้ม">
+                    <span class="color-emoji">🧡</span>
+                    <span class="color-name">สีส้ม</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีชมพู">
+                    <span class="color-emoji">🩷</span>
+                    <span class="color-name">สีชมพู</span>
+                </button>
+                <button type="button" class="choice-btn color-btn" data-value="สีน้ำเงิน">
+                    <span class="color-emoji">💙</span>
+                    <span class="color-name">สีน้ำเงิน</span>
+                </button>
+            </div>
+         </div>
+        </div>
+
+        <!-- ช่องกรอกคะแนน -->
+        <div>
+            <label class="mb-2 block font-bold" for="points">ระบุคะแนน</label>
+         <div class="relative">
+            <input id="points" class="field-control score-control" name="points" type="number" min="0" required placeholder="0"> 
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-[#5d7d70]">แต้ม</span>
+         </div>
+        </div>
+
+        <!-- พรีวิวคะแนนก่อนส่ง -->
+        <section class="flex items-center justify-between rounded-2xl px-5 py-4 bg-[#f4fcf7] border border-[#c8e7d4]" aria-live="polite">
+         <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#4b9a6b] shadow-sm" aria-hidden="true">
+            <i data-lucide="badge-check" style="width:20px;height:20px"></i>
+          </div>
+          <div>
+           <p class="text-sm font-bold">ตรวจสอบคะแนน</p>
+           <p class="mt-0.5 text-sm text-[#5d7d70]">คะแนนที่กำลังจะบันทึกลงระบบ</p>
+          </div>
+         </div>
+         <p id="score-display" class="score-number text-4xl font-extrabold text-[#25704e]">—</p>
+        </section>
+
+        <!-- กล่องแจ้งเตือน (Error / Success) -->
+        <div id="error-status" class="status-message items-start gap-3 rounded-2xl border border-[#f0beb9] bg-[#fff5f3] p-4 text-[#a3453e]" role="alert">
+            <i data-lucide="circle-alert" class="mt-0.5 shrink-0" style="width:20px;height:20px" aria-hidden="true"></i>
+         <p id="error-text" class="text-sm font-medium leading-relaxed">กรุณากรอกข้อมูลให้ครบถ้วน</p>
+        </div>
+        
+        <div id="success-status" class="status-message items-start gap-3 rounded-2xl border border-[#b9e1c8] bg-[#f1fbf4] p-4 text-[#256744]" role="status">
+            <i data-lucide="circle-check" class="mt-0.5 shrink-0" style="width:20px;height:20px" aria-hidden="true"></i>
+         <p class="text-sm font-medium leading-relaxed">บันทึกคะแนนเข้าสู่ระบบสำเร็จ!</p>
+        </div>
+
+        <!-- ปุ่ม Submit -->
+        <button id="submit-button" class="submit-action flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 font-bold focus:outline-none focus:ring-4 focus:ring-[#6fbd8d]/30" type="submit"> 
+            <i data-lucide="send" style="width:19px;height:19px" aria-hidden="true"></i> 
+            <span id="submit-text">บันทึกคะแนน</span> 
+        </button>
+
+       </div>
+      </form>
+     </div>
+    </section>
+   </main>
+  </div>
+
+  <script>
+    // ⚠️ 1. เอา URL ของ Web App มาวางตรงนี้ (ต้องอยู่ในเครื่องหมาย ' ') ⚠️
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec';
+
+    // การอ้างอิงตัวแปรในหน้าเว็บ
+    const form = document.getElementById("score-form");
+    const submitButton = document.getElementById("submit-button");
+    const submitText = document.getElementById("submit-text");
+    const scoreInput = document.getElementById("points");
+    const scoreDisplay = document.getElementById("score-display");
+    const errorStatus = document.getElementById("error-status");
+    const successStatus = document.getElementById("success-status");
+    const errorText = document.getElementById("error-text");
+
+    // ตัวแปรเก็บค่าที่เลือกจากปุ่ม
+    let selectedSport = "";
+    let selectedColor = "";
+
+    // จัดการคลิกปุ่มกีฬา
+    const sportButtons = document.querySelectorAll('.sport-btn');
+    sportButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sportButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedSport = btn.dataset.value;
+        });
+    });
+
+    // จัดการคลิกปุ่มสี
+    const colorButtons = document.querySelectorAll('.color-btn');
+    colorButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            colorButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedColor = btn.dataset.value;
+        });
+    });
+
+    // อัปเดตพรีวิวคะแนนแบบ Real-time
+    function updateScoreDisplay() {
+      const value = scoreInput.value;
+      scoreDisplay.textContent = value === "" ? "—" : Number(value).toLocaleString("th-TH");
+    }
+
+    // ฟังก์ชันเปิด-ปิด กล่องแจ้งเตือน
+    function showStatus(type, message = "") {
+      errorStatus.classList.toggle("is-visible", type === "error");
+      successStatus.classList.toggle("is-visible", type === "success");
+      if(message) errorText.textContent = message;
+    }
+
+    scoreInput.addEventListener("input", updateScoreDisplay);
+
+    // ทำงานเมื่อกดปุ่มบันทึกคะแนน
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      showStatus(""); // เคลียร์ข้อความแจ้งเตือน
+
+      const points = scoreInput.value;
+
+      // ตรวจสอบว่าเลือกปุ่มหรือยัง และกรอกคะแนนครบไหม
+      if (!selectedSport || !selectedColor || points === "") {
+        showStatus("error", "กรุณาเลือกประเภทกีฬา สี และระบุคะแนนให้ครบถ้วน");
+        return;
+      }
+
+      // เปลี่ยนสถานะปุ่มตอนกำลังโหลด
+      submitButton.disabled = true;
+      submitText.textContent = "กำลังบันทึกข้อมูล...";
+
+      // เตรียมข้อมูลที่จะส่งไปให้ Google Sheets
+      const payload = {
+        sport: selectedSport,
+        color: selectedColor,
+        points: parseInt(points)
+      };
+
+      try {
+        const response = await fetch(SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+        
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            showStatus("success");
+            
+            // ล้างข้อมูลในฟอร์มเมื่อบันทึกเสร็จ
+            selectedSport = "";
+            selectedColor = "";
+            sportButtons.forEach(b => b.classList.remove('active'));
+            colorButtons.forEach(b => b.classList.remove('active'));
+            scoreInput.value = "";
+            updateScoreDisplay();
+        } else {
+            showStatus("error", "เกิดข้อผิดพลาดจากระบบหลังบ้าน");
+        }
+      } catch (error) {
+        showStatus("error", "ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้ กรุณาตรวจสอบ URL");
+        console.error(error);
+      } finally {
+        // คืนค่าปุ่มกลับมาเหมือนเดิม
+        submitButton.disabled = false;
+        submitText.textContent = "บันทึกคะแนน";
+      }
+    });
+
+    // โหลดไอคอน
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.lucide) window.lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

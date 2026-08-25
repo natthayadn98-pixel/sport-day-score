@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard ผู้ชนะกีฬาสี</title>
+  
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Eczar:wght@600;700;800&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --ink: #11213a;
+      --navy: #07172f;
+      --gold: #f6b800;
+      --cream: #fff8e8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      width: 100%;
+      margin: 0;
+      color: var(--ink);
+      font-family: "Noto Sans Thai", "DM Sans", sans-serif;
+    }
+
+    .page-shell {
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 8% 16%, rgba(255, 226, 64, .92) 0 9%, transparent 10%),
+        radial-gradient(circle at 92% 12%, rgba(255, 105, 148, .58) 0 10%, transparent 11%),
+        radial-gradient(circle at 75% 88%, rgba(65, 213, 152, .56) 0 14%, transparent 15%),
+        radial-gradient(circle at 19% 83%, rgba(83, 179, 255, .55) 0 13%, transparent 14%),
+        linear-gradient(135deg, #fff3ab 0%, #ffdee7 36%, #d9f5ff 67%, #d7ffe5 100%);
+    }
+
+    .page-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .42;
+      background-image:
+        radial-gradient(circle, rgba(7, 23, 47, .13) 1.3px, transparent 1.6px),
+        radial-gradient(circle, rgba(255, 255, 255, .8) 1.5px, transparent 1.8px);
+      background-position: 0 0, 11px 11px;
+      background-size: 23px 23px;
+    }
+
+    .page-shell::after {
+      content: "";
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      top: 30%;
+      left: -310px;
+      border-radius: 50%;
+      background: rgba(255, 111, 69, .16);
+      filter: blur(4px);
+      pointer-events: none;
+    }
+
+    .content-frame {
+      width: 100%;
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px clamp(18px, 4vw, 62px) 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .display-font { font-family: "Eczar", "Noto Sans Thai", serif; }
+    .eyebrow { letter-spacing: .16em; }
+
+    /* กรอบผู้นำแบบใหม่ รวมเป็นชิ้นเดียว */
+    .hero-panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .64);
+      box-shadow: 0 24px 60px rgba(7, 23, 47, .22);
+      background-color: #07172f;
+      color: white;
+    }
+
+    .hero-panel::after {
+      content: "";
+      position: absolute;
+      width: 430px;
+      height: 430px;
+      right: -170px;
+      bottom: -280px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .09);
+    }
+
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      right: 10%;
+      top: -170px;
+      border-radius: 50%;
+      background: rgba(246, 184, 0, .22);
+      filter: blur(4px);
+    }
+
+    .trophy-halo {
+      box-shadow: 0 0 0 12px rgba(255, 255, 255, .12), 0 0 55px rgba(255, 199, 0, .52);
+      animation: trophyGlow 2.8s ease-in-out infinite;
+    }
+
+    .stat-card, .team-row, .sport-card {
+      box-shadow: 0 14px 35px rgba(21, 36, 56, .11);
+      background-color: white;
+    }
+
+    .team-row, .sport-card {
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .team-row:hover, .sport-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 38px rgba(21, 36, 56, .18);
+    }
+
+    .reveal { animation: riseIn 700ms both; }
+    .delay-1 { animation-delay: 100ms; }
+    .delay-2 { animation-delay: 190ms; }
+    .delay-3 { animation-delay: 280ms; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes trophyGlow {
+      0%, 100% { transform: rotate(-2deg) translateY(0); }
+      50% { transform: rotate(2deg) translateY(-5px); }
+    }
+
+    @media (max-width: 700px) {
+      .content-frame { padding-top: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+   <header class="content-frame pb-4" aria-label="ส่วนหัวแดชบอร์ด">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+     <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-2xl bg-[#07172f] text-[#f6b800] flex items-center justify-center shadow-lg" aria-hidden="true"><i data-lucide="trophy" style="width:25px;height:25px;"></i>
+      </div>
+      <div>
+       <p class="eyebrow text-[11px] font-bold uppercase text-[#56708e]">SCORE DASHBOARD</p>
+       <h1 class="display-font text-2xl md:text-3xl font-bold leading-none">สรุปคะแนนกีฬาสีประจำปี</h1>
+      </div>
+     </div>
+     <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] shadow-sm hover:bg-gray-100 bg-white transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
+        <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;" aria-hidden="true"></i> 
+        <span>อัปเดตข้อมูล</span> 
+        <span id="last-update-text" class="text-xs font-normal text-gray-500"></span> 
+     </button>
+    </div>
+   </header>
+
+   <main class="content-frame pt-4" aria-label="ผลการแข่งขันกีฬาสี">
+    
+    <!-- ผู้นำอันดับ 1 (Hero Section) แก้ให้เป็นกรอบเดียวกัน -->
+    <section class="hero-panel reveal rounded-[32px] mb-7" aria-labelledby="winner-heading">
+     <div class="flex flex-col lg:flex-row items-center justify-between min-h-[390px] p-7 sm:p-12 relative z-10 gap-8">
+      <div class="flex flex-col justify-center w-full lg:w-3/5">
+       <div class="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 mb-5">
+        <i data-lucide="crown" class="text-[#f8cc38]" style="width:17px;height:17px;" aria-hidden="true"></i> 
+        <span class="text-xs font-bold tracking-[0.14em] uppercase text-white">ผู้นำอันดับ 1 ในขณะนี้</span>
+       </div>
+       <h2 id="winner-heading" class="display-font text-6xl md:text-8xl font-bold leading-[.95] max-w-2xl text-white" aria-live="polite">กำลังโหลด...</h2>
+       <p class="mt-5 max-w-lg leading-relaxed text-white/80">คะแนนรวมสูงสุดในปัจจุบัน นำห่างทีมอื่นๆ อย่างยอดเยี่ยม ขอแสดงความยินดีกับความทุ่มเทของนักกีฬาและกองเชียร์ทุกคน!</p>
+       <div class="mt-7 flex flex-wrap items-center gap-3">
+        <div class="rounded-2xl bg-white/12 border border-white/15 px-6 py-4">
+         <p class="text-[11px] font-bold tracking-wider uppercase text-white/60">คะแนนรวมทั้งหมด</p>
+         <p id="winner-score" class="text-3xl font-extrabold text-[#ffdb57] mt-1" aria-live="polite">0</p>
+        </div>
+        <div class="rounded-2xl bg-white/12 border border-white/15 px-6 py-4">
+         <p class="text-[11px] font-bold tracking-wider uppercase text-white/60">อันดับ</p>
+         <p id="winner-rank" class="text-3xl font-extrabold text-white mt-1" aria-live="polite">#1</p>
+        </div>
+       </div>
+      </div>
+      <div class="w-full lg:w-2/5 flex justify-center lg:justify-end items-center py-6">
+       <div class="rounded-full bg-[#f6b800] text-[#07172f] p-8 sm:p-10 trophy-halo" aria-hidden="true">
+        <i data-lucide="trophy" style="width:100px;height:100px;"></i>
+       </div>
+      </div>
+     </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-9" aria-label="สรุปสถิติการแข่งขัน">
+     <article class="stat-card reveal delay-1 rounded-3xl p-5 border border-[#eadfca]">
+      <div class="flex items-start justify-between">
+       <div>
+        <p class="text-sm font-bold text-[#62718a]">คะแนนรวมทั้งบริษัท</p>
+        <p id="stat-total-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
+       </div>
+       <div class="rounded-2xl bg-[#fff1c6] p-3 text-[#b37500]" aria-hidden="true">
+        <i data-lucide="bar-chart-3" style="width:23px;height:23px;"></i>
+       </div>
+      </div>
+      </article>
+      <article class="stat-card reveal delay-2 rounded-3xl p-5 border border-[#eadfca]">
+      <div class="flex items-start justify-between">
+       <div>
+        <p class="text-sm font-bold text-[#62718a]">จำนวนทีมที่เข้าร่วม</p>
+        <p id="stat-teams-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
+       </div>
+       <div class="rounded-2xl bg-[#e5f5ec] p-3 text-[#168054]" aria-hidden="true">
+        <i data-lucide="users" style="width:23px;height:23px;"></i>
+       </div>
+      </div>
+      </article>
+      <article class="stat-card reveal delay-3 rounded-3xl p-5 border border-[#eadfca]">
+      <div class="flex items-start justify-between">
+       <div>
+        <p class="text-sm font-bold text-[#62718a]">คะแนนสูงสุด (High Score)</p>
+        <p id="stat-highest-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
+       </div>
+       <div class="rounded-2xl bg-[#e6eefc] p-3 text-[#2165d5]" aria-hidden="true">
+        <i data-lucide="medal" style="width:23px;height:23px;"></i>
+       </div>
+      </div>
+      </article>
+    </section>
+
+    <section class="mb-9" aria-labelledby="sports-heading">
+     <div class="flex flex-wrap items-end justify-between gap-4 mb-4">
+      <div>
+       <p class="eyebrow text-[11px] font-bold uppercase text-[#1c9a66]">SPORTS BREAKDOWN</p>
+       <h2 id="sports-heading" class="display-font text-2xl font-bold">ผู้นำแต่ละประเภทกีฬา</h2>
+      </div><i data-lucide="activity" class="text-[#1c9a66]" style="width:23px;height:23px;" aria-hidden="true"></i>
+     </div>
+     <div id="sports-tabs" class="flex flex-wrap gap-2 mb-4" role="tablist" aria-label="เลือกประเภทกีฬา"></div>
+     <div id="sports-panels" aria-live="polite">
+      <p class="text-gray-500 py-4">กำลังโหลดข้อมูลกีฬา...</p>
+     </div>
+    </section>
+
+    <section aria-labelledby="leaderboard-heading">
+     <div class="flex items-end justify-between mb-4">
+      <div>
+       <p class="eyebrow text-[11px] font-bold uppercase text-[#d65a35]">LEADERBOARD</p>
+       <h2 id="leaderboard-heading" class="display-font text-2xl font-bold">ตารางคะแนนรวมทุกสี</h2>
+      </div><i data-lucide="list-ordered" class="text-[#6a7d96]" style="width:23px;height:23px;" aria-hidden="true"></i>
+     </div>
+     <div id="leaderboard-container" class="grid grid-cols-1 md:grid-cols-2 gap-3" aria-live="polite"></div>
+    </section>
+   </main>
+   
+   <footer class="content-frame pt-8 pb-10 text-center" aria-label="เครดิตระบบ">
+    <p class="display-font font-semibold text-[#405773]">ระบบจัดการและรายงานผลคะแนนกีฬาสี (Live Score Dashboard)</p>
+   </footer>
+  </div>
+
+  <script>
+    // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ ⚠️
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec";
+
+    const teamStyles = {
+      "สีแดง": { border: "border-[#f0d6d0]", bg: "bg-[#fee2e2]", text: "text-[#e6343f]", scoreColor: "#e6343f" },
+      "สีเหลือง": { border: "border-[#f0e1ad]", bg: "bg-[#fef9c3]", text: "text-[#b58500]", scoreColor: "#b58500" },
+      "สีเขียว": { border: "border-[#cee8d9]", bg: "bg-[#dcfce7]", text: "text-[#1c9a66]", scoreColor: "#1c9a66" },
+      "สีฟ้า": { border: "border-[#d7e2f7]", bg: "bg-[#dbeafe]", text: "text-[#2165d5]", scoreColor: "#2165d5" },
+      "สีม่วง": { border: "border-[#e9d5ff]", bg: "bg-[#f3e8ff]", text: "text-[#7e22ce]", scoreColor: "#7e22ce" },
+      "สีส้ม": { border: "border-[#fed7aa]", bg: "bg-[#ffedd5]", text: "text-[#c2410c]", scoreColor: "#c2410c" },
+      "สีชมพู": { border: "border-[#fbcfe8]", bg: "bg-[#fce7f3]", text: "text-[#be185d]", scoreColor: "#be185d" },
+      "สีน้ำเงิน": { border: "border-[#c7d2fe]", bg: "bg-[#e0e7ff]", text: "text-[#312e81]", scoreColor: "#312e81" },
+      "default": { border: "border-gray-300", bg: "bg-gray-200", text: "text-gray-800", scoreColor: "#11213a" }
+    };
+
+    const refreshButton = document.getElementById("refresh-btn");
+    refreshButton.addEventListener("click", fetchScores);
+
+    function setStatus(message) {
+      document.getElementById("last-update-text").textContent = message;
+    }
+
+    async function fetchScores() {
+      const icon = document.getElementById("refresh-icon");
+      const button = document.getElementById("refresh-btn");
+
+      icon.classList.add("animate-spin");
+      button.disabled = true;
+      setStatus("กำลังดึงข้อมูล...");
+
+      try {
+        const response = await fetch(SCRIPT_URL);
+        if (!response.ok) throw new Error("ไม่สามารถเชื่อมต่อข้อมูลคะแนนได้");
+
+        const data = await response.json();
+        const total = data && data.total ? data.total : {};
+        const sports = data && data.sports ? data.sports : {};
+        const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
+
+        updateDashboardUI(sortedTotalScores, sports);
+        updateSportsBreakdown(sports);
+
+        const now = new Date();
+        setStatus(`(ล่าสุด ${now.toLocaleTimeString("th-TH")})`);
+      } catch (error) {
+        setStatus("(เชื่อมต่อขัดข้อง)");
+        document.getElementById("sports-panels").innerHTML =
+          '<p class="text-red-600 py-4 text-center border-2 border-dashed border-red-200 rounded-xl">ไม่สามารถโหลดข้อมูลคะแนนได้ โปรดลองอัปเดตอีกครั้ง</p>';
+      } finally {
+        icon.classList.remove("animate-spin");
+        button.disabled = false;
+      }
+    }
+
+    function updateDashboardUI(scores, sportsData) {
+      const winnerHeading = document.getElementById("winner-heading");
+      const leaderboard = document.getElementById("leaderboard-container");
+
+      if (scores.length === 0) {
+        winnerHeading.textContent = "รอผลการแข่งขัน";
+        winnerHeading.className = "display-font text-5xl md:text-7xl font-bold leading-[.95] max-w-xl text-white";
+        document.getElementById("winner-score").textContent = "0";
+        document.getElementById("winner-rank").textContent = "-";
+        document.getElementById("stat-total-value").textContent = "0";
+        document.getElementById("stat-teams-value").textContent = "0";
+        document.getElementById("stat-highest-value").textContent = "0";
+        leaderboard.innerHTML = '<p class="md:col-span-2 text-center text-[#62718a] py-7 bg-white/70 border border-white rounded-2xl">ยังไม่มีข้อมูลคะแนนรวม</p>';
+        return;
+      }
+
+      const topScore = Number(scores[0][1]);
+      const topTeams = topScore > 0 ? scores.filter(team => Number(team[1]) === topScore).map(team => team[0]) : [];
+      let winnerText = "รอผลการแข่งขัน";
+
+      if (topTeams.length === 1) {
+        winnerText = topTeams[0];
+      } else if (topTeams.length === 2) {
+        winnerText = topTeams.join(" และ ");
+      } else if (topTeams.length > 2) {
+        winnerText = `${topTeams.slice(0, -1).join(", ")} และ ${topTeams[topTeams.length - 1]}`;
+      }
+
+      winnerHeading.textContent = winnerText;
+      winnerHeading.className = topTeams.length > 1
+        ? "display-font text-4xl md:text-5xl font-bold leading-[.95] max-w-2xl text-white"
+        : "display-font text-6xl md:text-8xl font-bold leading-[.95] max-w-xl text-white";
+
+      document.getElementById("winner-score").textContent = topScore.toLocaleString();
+      document.getElementById("winner-rank").textContent = topTeams.length > 1 ? "#1 (ร่วม)" : topScore > 0 ? "#1" : "-";
+
+      const totalScore = scores.reduce((sum, team) => sum + Number(team[1]), 0);
+      document.getElementById("stat-total-value").textContent = totalScore.toLocaleString();
+      document.getElementById("stat-teams-value").textContent = String(scores.length);
+      document.getElementById("stat-highest-value").textContent = topScore.toLocaleString();
+
+      leaderboard.replaceChildren();
+
+      let currentRank = 1;
+      let previousScore = null;
+
+      scores.forEach(([teamName, rawPoints]) => {
+        const points = Number(rawPoints);
+        let displayRank = "-";
+        let rankLabel = "ไม่มีคะแนน";
+        
+        // ตัวแปรเก็บอิโมจิ
+        let rankEmojis = "";
+
+        if (points > 0) {
+          if (previousScore !== null && points < previousScore) currentRank++;
+          previousScore = points;
+          displayRank = currentRank;
+          rankLabel = `อันดับที่ ${currentRank}`;
+          
+          // กำหนดอิโมจิตามอันดับ 1, 2, 3
+          if (currentRank === 1) rankEmojis = " 🏆🥇";
+          else if (currentRank === 2) rankEmojis = " 🥈";
+          else if (currentRank === 3) rankEmojis = " 🥉";
+        }
+
+        const style = teamStyles[teamName] || teamStyles.default;
+        const sportsBadges = Object.entries(sportsData)
+          .filter(([, colors]) => colors[teamName] && Number(colors[teamName]) > 0)
+          .map(([sport, colors]) => `<span class="inline-block bg-gray-50 border border-gray-200 text-gray-500 text-[10px] px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`)
+          .join("") || '<span class="inline-block text-gray-400 text-[10px] mt-1">ยังไม่มีข้อมูลคะแนนรายกีฬา</span>';
+
+        const rankBgClass = points > 0 ? `${style.bg} ${style.text}` : "bg-gray-100 text-gray-400";
+        const badgeBgClass = points > 0 ? "bg-gray-100" : "bg-red-50 text-red-500";
+
+        const card = document.createElement("article");
+        card.className = `team-row rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border ${style.border} bg-white`;
+        card.innerHTML = `
+          <div class="flex items-center gap-4 flex-1">
+            <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-extrabold ${rankBgClass} text-lg">${displayRank}</div>
+            <div class="min-w-0 flex-1">
+              <p class="font-extrabold text-[#11213a] text-lg flex flex-wrap items-center gap-2">
+                ${teamName}<span class="text-xl">${rankEmojis}</span>
+                <span class="text-xs font-normal text-gray-500 ${badgeBgClass} px-2 py-0.5 rounded-full">${rankLabel}</span>
+              </p>
+              <div class="flex flex-wrap mt-0.5">${sportsBadges}</div>
+            </div>
+          </div>
+          <div class="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 mt-2 sm:mt-0">
+            <p class="text-2xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+            <p class="text-[11px] font-bold text-[#7e8b9d] uppercase">คะแนนรวม</p>
+          </div>
+        `;
+        leaderboard.appendChild(card);
+      });
+    }
+
+    function updateSportsBreakdown(sportsData) {
+      const tabsContainer = document.getElementById("sports-tabs");
+      const panelsContainer = document.getElementById("sports-panels");
+      tabsContainer.replaceChildren();
+      panelsContainer.replaceChildren();
+
+      const sports = Object.entries(sportsData);
+      if (!sports.length) {
+        panelsContainer.innerHTML = '<p class="text-gray-500 py-4 text-center border-2 border-dashed border-gray-200 rounded-xl w-full">ยังไม่มีการบันทึกคะแนนกีฬาประเภทใดๆ</p>';
+        return;
+      }
+
+      sports.forEach(([sport, colors], sportIndex) => {
+        const sportId = `sport-${sport.replace(/[^\w\u0E00-\u0E7F]+/g, "-")}-${sportIndex}`;
+        const isFirst = sportIndex === 0;
+
+        const tab = document.createElement("button");
+        tab.type = "button";
+        tab.setAttribute("role", "tab");
+        tab.setAttribute("aria-selected", String(isFirst));
+        tab.setAttribute("aria-controls", `${sportId}-panel`);
+        tab.className = `rounded-full px-5 py-2 text-sm font-bold border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#11213a] ${isFirst ? "bg-[#11213a] text-white border-transparent" : "bg-white text-[#11213a] border-[#eadfca]"}`;
+        tab.textContent = sport;
+        tabsContainer.appendChild(tab);
+
+        const panel = document.createElement("div");
+        panel.id = `${sportId}-panel`;
+        panel.setAttribute("role", "tabpanel");
+        panel.className = `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full ${isFirst ? "" : "hidden"}`;
+
+        let currentRank = 1;
+        let previousScore = null;
+
+        Object.entries(colors)
+          .sort((a, b) => Number(b[1]) - Number(a[1]))
+          .forEach(([teamName, rawPoints]) => {
+            const points = Number(rawPoints);
+            let displayRank = "-";
+            let rankLabel = "ไม่มีคะแนน";
+            let iconName = "minus";
+
+            if (points > 0) {
+              if (previousScore !== null && points < previousScore) currentRank++;
+              previousScore = points;
+              displayRank = currentRank;
+              rankLabel = `อันดับที่ ${currentRank}`;
+              iconName = currentRank === 1 ? "trophy" : currentRank <= 3 ? "medal" : "award";
+            }
+
+            const style = teamStyles[teamName] || teamStyles.default;
+            const rankBgClass = points > 0 ? `${style.bg} ${style.text}` : "bg-gray-100 text-gray-400";
+
+            const card = document.createElement("article");
+            card.className = `sport-card rounded-2xl p-5 border ${style.border} bg-white relative`;
+            card.innerHTML = `
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold ${rankBgClass} text-sm">${displayRank}</div>
+                  <span class="font-extrabold text-lg text-[#11213a]">${teamName}</span>
+                </div>
+                <i data-lucide="${iconName}" class="${points > 0 ? style.text : "text-gray-300"}" style="width:22px;height:22px;"></i>
+              </div>
+              <p class="text-3xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+              <p class="mt-1 text-sm font-bold text-[#66758d]">แต้มสะสม (${rankLabel})</p>
+            `;
+            panel.appendChild(card);
+          });
+
+        panelsContainer.appendChild(panel);
+
+        tab.addEventListener("click", () => {
+          [...tabsContainer.children].forEach((item, index) => {
+            const selected = index === sportIndex;
+            item.setAttribute("aria-selected", String(selected));
+            item.className = `rounded-full px-5 py-2 text-sm font-bold border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#11213a] ${selected ? "bg-[#11213a] text-white border-transparent" : "bg-white text-[#11213a] border-[#eadfca]"}`;
+          });
+
+          [...panelsContainer.children].forEach((item, index) => {
+            item.classList.toggle("hidden", index !== sportIndex);
+          });
+        });
+      });
+
+      if (window.lucide) lucide.createIcons();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) lucide.createIcons();
+      fetchScores();
+    });
+  </script>
+</body>
+</html>
