@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ตารางคะแนนรวมทั้งหมด - กีฬาสี</title>
+  
+  <link rel="icon" type="image/png" href="st.png">
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Eczar:wght@600;700;800&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root { --ink: #11213a; --navy: #07172f; --gold: #f6b800; --cream: #fff8e8; }
+    * { box-sizing: border-box; }
+    body {
+      width: 100%; margin: 0; color: var(--ink);
+      font-family: "Noto Sans Thai", "DM Sans", sans-serif;
+      background-size: cover; background-position: center;
+      background-repeat: no-repeat; background-attachment: fixed;
+    }
+    .page-shell {
+      width: 100%; min-height: 100vh; position: relative; overflow-x: hidden;
+      background-image:
+        radial-gradient(circle at 8% 16%, rgba(255, 226, 64, .92) 0 9%, transparent 10%),
+        radial-gradient(circle at 92% 12%, rgba(255, 105, 148, .58) 0 10%, transparent 11%),
+        radial-gradient(circle at 75% 88%, rgba(65, 213, 152, .56) 0 14%, transparent 15%),
+        radial-gradient(circle at 19% 83%, rgba(83, 179, 255, .55) 0 13%, transparent 14%),
+        linear-gradient(135deg, #fff3ab 0%, #ffdee7 36%, #d9f5ff 67%, #d7ffe5 100%);
+    }
+    .page-shell::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .42;
+      background-image: radial-gradient(circle, rgba(7, 23, 47, .13) 1.3px, transparent 1.6px), radial-gradient(circle, rgba(255, 255, 255, .8) 1.5px, transparent 1.8px);
+      background-position: 0 0, 11px 11px; background-size: 23px 23px;
+    }
+    .content-frame {
+      width: 100%; max-width: 1000px; margin: 0 auto; padding: 28px clamp(18px, 4vw, 62px) 40px; position: relative; z-index: 1;
+    }
+    .display-font { font-family: "Eczar", "Noto Sans Thai", serif; }
+    .team-row { transition: transform 180ms ease, box-shadow 180ms ease; }
+    .team-row:hover { transform: translateY(-4px); box-shadow: 0 20px 38px rgba(21, 36, 56, .18); }
+    @media (max-width: 700px) { .content-frame { padding-top: 18px; } }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+   <header class="content-frame pb-4">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-300/40 pb-6 mb-4">
+     <div class="flex items-center gap-3">
+      <div class="w-12 h-12 rounded-2xl bg-white text-[#d65a35] flex items-center justify-center shadow-md border border-gray-200"><i data-lucide="list-ordered" style="width:26px;height:26px;"></i></div>
+      <div>
+       <p class="text-[11px] font-bold uppercase text-[#d65a35] tracking-widest">FULL LEADERBOARD</p>
+       <h1 class="display-font text-2xl md:text-3xl font-bold leading-none">ตารางคะแนนรวมทุกสี</h1>
+      </div>
+     </div>
+     
+     <!-- กลุ่มปุ่มเมนูด้านบน -->
+     <div class="flex flex-wrap items-center gap-3">
+       <a href="index.html" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold bg-[#11213a] text-white shadow-md hover:bg-blue-900 transition-colors"> 
+          <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> 
+          <span>กลับหน้าหลัก</span> 
+       </a>
+       
+       <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
+          <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;" aria-hidden="true"></i> 
+          <span>อัปเดตข้อมูล</span> 
+          <span id="last-update-text" class="text-xs font-normal text-gray-500"></span> 
+       </button>
+     </div>
+    </div>
+   </header>
+
+   <main class="content-frame pt-0">
+    <div class="flex flex-col gap-3 sm:gap-4">
+       <!-- แท่นรับรางวัลตรงกลางสำหรับที่ 1 -->
+       <div id="leaderboard-podium-top" class="w-full flex flex-col gap-3 max-w-3xl mx-auto pb-2">
+            <p class="text-center text-gray-500 py-10 font-bold animate-pulse">กำลังโหลดตารางคะแนน...</p>
+       </div>
+       <!-- อันดับที่ 2 ลงไป จะถูกนำมาจัดเรียงใน Grid ด้านล่าง -->
+       <div id="leaderboard-podium-rest" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4" aria-live="polite"></div>
+     </div>
+   </main>
+  </div>
+
+  <script>
+    // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ (ต้องเป็น URL เดียวกัน) ⚠️
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec";
+
+    const teamStyles = {
+      "สีแดง": { border: "border-red-200", bg: "bg-red-50", text: "text-red-600", scoreColor: "#e6343f" },
+      "สีเหลือง": { border: "border-yellow-200", bg: "bg-yellow-50", text: "text-yellow-600", scoreColor: "#b58500" },
+      "สีเขียว": { border: "border-green-200", bg: "bg-green-50", text: "text-green-600", scoreColor: "#1c9a66" },
+      "สีฟ้า": { border: "border-sky-200", bg: "bg-sky-50", text: "text-sky-500", scoreColor: "#0ea5e9" },
+      "สีม่วง": { border: "border-purple-200", bg: "bg-purple-50", text: "text-purple-600", scoreColor: "#9333ea" },
+      "สีส้ม": { border: "border-orange-200", bg: "bg-orange-50", text: "text-orange-600", scoreColor: "#ea580c" },
+      "สีชมพู": { border: "border-pink-200", bg: "bg-pink-50", text: "text-pink-600", scoreColor: "#db2777" },
+      "สีน้ำเงิน": { border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", scoreColor: "#1d4ed8" },
+      "default": { border: "border-gray-200", bg: "bg-gray-50", text: "text-gray-800", scoreColor: "#11213a" }
+    };
+    const teamEmojis = { "สีแดง": "❤️", "สีเหลือง": "💛", "สีเขียว": "💚", "สีฟ้า": "🩵", "สีม่วง": "💜", "สีส้ม": "🧡", "สีชมพู": "🩷", "สีน้ำเงิน": "💙" };
+
+    const refreshButton = document.getElementById("refresh-btn");
+    refreshButton.addEventListener("click", fetchScores);
+
+    function setStatus(message) {
+      document.getElementById("last-update-text").textContent = message;
+    }
+
+    async function fetchScores() {
+      const icon = document.getElementById("refresh-icon");
+      const button = document.getElementById("refresh-btn");
+
+      icon.classList.add("animate-spin");
+      button.disabled = true;
+      setStatus("กำลังดึงข้อมูล...");
+
+      try {
+        const response = await fetch(SCRIPT_URL);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        const total = data && data.total ? data.total : {};
+        const sports = data && data.sports ? data.sports : {};
+        const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
+        
+        updateLeaderboardList(sortedTotalScores, sports);
+        
+        const now = new Date();
+        setStatus(`(ล่าสุด ${now.toLocaleTimeString("th-TH")})`);
+      } catch (error) {
+        setStatus("(เชื่อมต่อขัดข้อง)");
+        document.getElementById("leaderboard-podium-top").innerHTML = '<p class="text-red-600 py-4 text-center bg-white rounded-xl shadow-sm">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+      } finally {
+        icon.classList.remove("animate-spin");
+        button.disabled = false;
+      }
+    }
+
+    function updateLeaderboardList(scores, sportsData) {
+      const podiumTop = document.getElementById("leaderboard-podium-top");
+      const podiumRest = document.getElementById("leaderboard-podium-rest");
+
+      if (scores.length === 0) {
+        podiumTop.innerHTML = '<p class="w-full text-center text-[#62718a] py-7 bg-white/70 border border-white rounded-2xl">ยังไม่มีข้อมูลคะแนน</p>';
+        podiumRest.innerHTML = '';
+        return;
+      }
+
+      podiumTop.innerHTML = '';
+      podiumRest.innerHTML = '';
+
+      let currentRank = 1;
+      let previousScore = null;
+
+      scores.forEach(([teamName, rawPoints]) => {
+        const points = Number(rawPoints);
+        let displayRank = "-"; let rankLabel = "ไม่มีคะแนน"; let rankEmojis = "";
+
+        if (points > 0) {
+          if (previousScore !== null && points < previousScore) currentRank++;
+          previousScore = points; displayRank = currentRank; rankLabel = `อันดับที่ ${currentRank}`;
+          
+          if (currentRank === 1) rankEmojis = '<span class="text-2xl ml-1">🥇</span>';
+          else if (currentRank === 2) rankEmojis = '<span class="text-xl ml-1">🥈</span>';
+          else if (currentRank === 3) rankEmojis = '<span class="text-xl ml-1">🥉</span>';
+        }
+
+        const style = teamStyles[teamName] || teamStyles.default;
+        const emoji = teamEmojis[teamName] || "";
+        const isTop3 = (points > 0 && currentRank <= 3);
+        let sportsBadges = '';
+        
+        for (const [sport, colors] of Object.entries(sportsData)) {
+            if (colors[teamName] && colors[teamName] > 0) {
+                // ป้ายกีฬาเปลี่ยนให้เป็นสีขาวเสมอเพื่อให้อ่านง่ายบนพื้นหลังสีอ่อน
+                sportsBadges += `<span class="inline-block bg-white text-gray-600 border border-white shadow-sm text-[10px] px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
+            }
+        }
+        if(!sportsBadges) {
+            sportsBadges = `<span class="inline-block text-gray-400 text-[10px] mt-1 bg-white/50 px-2 py-0.5 rounded">ยังไม่มีข้อมูลคะแนน</span>`;
+        }
+
+        let cardHTML = '';
+        const isWinner = (currentRank === 1 && points > 0);
+        
+        // ใช้สไตล์พื้นฐานของทีมทุกอันดับ (สีอ่อนพาสเทล)
+        const baseBoxStyle = `border-2 ${style.border} ${style.bg} rounded-[1.25rem] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all relative team-row`;
+        
+        if (isWinner) {
+            cardHTML = `
+            <article class="${baseBoxStyle} w-full z-30">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-12 h-12 shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 text-2xl ${style.text}">${displayRank}</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-extrabold text-[#11213a] text-xl sm:text-2xl flex flex-wrap items-center gap-2">
+                            ${emoji} ${teamName} ${rankEmojis}
+                            <span class="text-[10px] sm:text-xs font-bold ${style.text} bg-white border border-white px-2 py-0.5 rounded-full shadow-sm">${rankLabel}</span>
+                        </p>
+                        <div class="flex flex-wrap mt-1.5">${sportsBadges}</div>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 mt-3 sm:mt-0 flex flex-col items-start sm:items-end">
+                    <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border ${style.border} inline-block">
+                        <p class="text-4xl sm:text-5xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[11px] font-bold uppercase mt-2 text-[#7e8b9d]">คะแนนรวม</p>
+                </div>
+            </article>`;
+        } else {
+            cardHTML = `
+            <article class="${baseBoxStyle}">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 text-xl ${style.text}">${displayRank}</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-extrabold text-[#11213a] text-lg sm:text-xl flex flex-wrap items-center gap-2">
+                            ${emoji} ${teamName} ${rankEmojis}
+                            <span class="text-[10px] sm:text-xs font-bold ${style.text} bg-white border border-white px-2 py-0.5 rounded-full shadow-sm">${rankLabel}</span>
+                        </p>
+                        <div class="flex flex-wrap mt-1">${sportsBadges}</div>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 mt-3 sm:mt-0 flex flex-col items-start sm:items-end">
+                    <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm border ${style.border} inline-block">
+                        <p class="text-3xl sm:text-4xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[11px] font-bold uppercase mt-1.5 text-[#7e8b9d]">คะแนนรวม</p>
+                </div>
+            </article>`;
+        }
+
+        if (isWinner) {
+            podiumTop.insertAdjacentHTML('beforeend', cardHTML);
+        } else {
+            podiumRest.insertAdjacentHTML('beforeend', cardHTML);
+        }
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.lucide) lucide.createIcons();
+      fetchScores();
+    });
+  </script>
+</body>
+</html>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard ผู้ชนะกีฬาสี</title>
+  
   <link rel="icon" type="image/png" href="st.png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
@@ -24,11 +25,15 @@
       margin: 0;
       color: var(--ink);
       font-family: "Noto Sans Thai", "DM Sans", sans-serif;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
     }
 
     .page-shell {
       width: 100%;
-      min-height: 100vh;
+      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
       position: relative;
       overflow-x: hidden;
       background-image:
@@ -77,7 +82,6 @@
     .display-font { font-family: "Eczar", "Noto Sans Thai", serif; }
     .eyebrow { letter-spacing: .16em; }
 
-    /* กรอบผู้นำแบบใหม่ รวมเป็นชิ้นเดียว */
     .hero-panel {
       position: relative;
       overflow: hidden;
@@ -116,12 +120,9 @@
       animation: trophyGlow 2.8s ease-in-out infinite;
     }
 
-    .stat-card, .team-row, .sport-card {
+    .stat-card, .sport-card, .team-row {
       box-shadow: 0 14px 35px rgba(21, 36, 56, .11);
       background-color: white;
-    }
-
-    .team-row, .sport-card {
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
 
@@ -162,17 +163,24 @@
        <h1 class="display-font text-2xl md:text-3xl font-bold leading-none">สรุปคะแนนกีฬาสีประจำปี</h1>
       </div>
      </div>
-     <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] shadow-sm hover:bg-gray-100 bg-white transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
+     
+     <!-- ปุ่มเมนูด้านบน -->
+     <div class="flex flex-wrap items-center gap-3">
+       <a href="ranking.html" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold bg-[#11213a] text-white shadow-sm hover:bg-blue-900 transition-colors">
+          <i data-lucide="list-ordered" style="width:16px;height:16px;"></i> 
+          <span>ดูตารางคะแนนเต็ม</span> 
+       </a>
+       <button id="refresh-btn" type="button" onclick="fetchScores()" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
         <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;" aria-hidden="true"></i> 
         <span>อัปเดตข้อมูล</span> 
         <span id="last-update-text" class="text-xs font-normal text-gray-500"></span> 
-     </button>
+       </button>
+     </div>
     </div>
    </header>
 
    <main class="content-frame pt-4" aria-label="ผลการแข่งขันกีฬาสี">
-    
-    <!-- ผู้นำอันดับ 1 (Hero Section) แก้ให้เป็นกรอบเดียวกัน -->
+    <!-- ผู้นำอันดับ 1 -->
     <section class="hero-panel reveal rounded-[32px] mb-7" aria-labelledby="winner-heading">
      <div class="flex flex-col lg:flex-row items-center justify-between min-h-[390px] p-7 sm:p-12 relative z-10 gap-8">
       <div class="flex flex-col justify-center w-full lg:w-3/5">
@@ -205,15 +213,15 @@
      <article class="stat-card reveal delay-1 rounded-3xl p-5 border border-[#eadfca]">
       <div class="flex items-start justify-between">
        <div>
-        <p class="text-sm font-bold text-[#62718a]">คะแนนรวมทั้งบริษัท</p>
+        <p class="text-sm font-bold text-[#62718a]">คะแนนรวมทั้งโรงเรียน</p>
         <p id="stat-total-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
        </div>
        <div class="rounded-2xl bg-[#fff1c6] p-3 text-[#b37500]" aria-hidden="true">
         <i data-lucide="bar-chart-3" style="width:23px;height:23px;"></i>
        </div>
       </div>
-      </article>
-      <article class="stat-card reveal delay-2 rounded-3xl p-5 border border-[#eadfca]">
+     </article>
+     <article class="stat-card reveal delay-2 rounded-3xl p-5 border border-[#eadfca]">
       <div class="flex items-start justify-between">
        <div>
         <p class="text-sm font-bold text-[#62718a]">จำนวนทีมที่เข้าร่วม</p>
@@ -223,8 +231,8 @@
         <i data-lucide="users" style="width:23px;height:23px;"></i>
        </div>
       </div>
-      </article>
-      <article class="stat-card reveal delay-3 rounded-3xl p-5 border border-[#eadfca]">
+     </article>
+     <article class="stat-card reveal delay-3 rounded-3xl p-5 border border-[#eadfca]">
       <div class="flex items-start justify-between">
        <div>
         <p class="text-sm font-bold text-[#62718a]">คะแนนสูงสุด (High Score)</p>
@@ -234,7 +242,7 @@
         <i data-lucide="medal" style="width:23px;height:23px;"></i>
        </div>
       </div>
-      </article>
+     </article>
     </section>
 
     <section class="mb-9" aria-labelledby="sports-heading">
@@ -250,6 +258,7 @@
      </div>
     </section>
 
+    <!-- ตารางคะแนนรวม (จัดรูปแบบ Podium ตรงกลางสำหรับที่ 1) -->
     <section aria-labelledby="leaderboard-heading">
      <div class="flex items-end justify-between mb-4">
       <div>
@@ -257,7 +266,13 @@
        <h2 id="leaderboard-heading" class="display-font text-2xl font-bold">ตารางคะแนนรวมทุกสี</h2>
       </div><i data-lucide="list-ordered" class="text-[#6a7d96]" style="width:23px;height:23px;" aria-hidden="true"></i>
      </div>
-     <div id="leaderboard-container" class="grid grid-cols-1 md:grid-cols-2 gap-3" aria-live="polite"></div>
+     
+     <div class="flex flex-col gap-3 sm:gap-4">
+       <!-- ที่ 1 จะถูกสร้างและใส่ตรงนี้ (เต็มความกว้าง ตรงกลาง) -->
+       <div id="leaderboard-podium-top" class="w-full flex flex-col gap-3 max-w-3xl mx-auto pb-2"></div>
+       <!-- อันดับอื่นๆ จะถูกสร้างและใส่ตรงนี้ (แบ่ง 2 คอลัมน์) -->
+       <div id="leaderboard-podium-rest" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4" aria-live="polite"></div>
+     </div>
     </section>
    </main>
    
@@ -270,16 +285,28 @@
     // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ ⚠️
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec";
 
+    // เปลี่ยนโทนสีพื้นหลังให้เป็นสีอ่อน (Pastel) แบบเดียวกันหมด
     const teamStyles = {
-      "สีแดง": { border: "border-[#f0d6d0]", bg: "bg-[#fee2e2]", text: "text-[#e6343f]", scoreColor: "#e6343f" },
-      "สีเหลือง": { border: "border-[#f0e1ad]", bg: "bg-[#fef9c3]", text: "text-[#b58500]", scoreColor: "#b58500" },
-      "สีเขียว": { border: "border-[#cee8d9]", bg: "bg-[#dcfce7]", text: "text-[#1c9a66]", scoreColor: "#1c9a66" },
-      "สีฟ้า": { border: "border-[#d7e2f7]", bg: "bg-[#dbeafe]", text: "text-[#2165d5]", scoreColor: "#2165d5" },
-      "สีม่วง": { border: "border-[#e9d5ff]", bg: "bg-[#f3e8ff]", text: "text-[#7e22ce]", scoreColor: "#7e22ce" },
-      "สีส้ม": { border: "border-[#fed7aa]", bg: "bg-[#ffedd5]", text: "text-[#c2410c]", scoreColor: "#c2410c" },
-      "สีชมพู": { border: "border-[#fbcfe8]", bg: "bg-[#fce7f3]", text: "text-[#be185d]", scoreColor: "#be185d" },
-      "สีน้ำเงิน": { border: "border-[#c7d2fe]", bg: "bg-[#e0e7ff]", text: "text-[#312e81]", scoreColor: "#312e81" },
-      "default": { border: "border-gray-300", bg: "bg-gray-200", text: "text-gray-800", scoreColor: "#11213a" }
+      "สีแดง": { border: "border-red-200", bg: "bg-red-50", text: "text-red-600", scoreColor: "#e6343f" },
+      "สีเหลือง": { border: "border-yellow-200", bg: "bg-yellow-50", text: "text-yellow-600", scoreColor: "#b58500" },
+      "สีเขียว": { border: "border-green-200", bg: "bg-green-50", text: "text-green-600", scoreColor: "#1c9a66" },
+      "สีฟ้า": { border: "border-sky-200", bg: "bg-sky-50", text: "text-sky-500", scoreColor: "#0ea5e9" },
+      "สีม่วง": { border: "border-purple-200", bg: "bg-purple-50", text: "text-purple-600", scoreColor: "#9333ea" },
+      "สีส้ม": { border: "border-orange-200", bg: "bg-orange-50", text: "text-orange-600", scoreColor: "#ea580c" },
+      "สีชมพู": { border: "border-pink-200", bg: "bg-pink-50", text: "text-pink-600", scoreColor: "#db2777" },
+      "สีน้ำเงิน": { border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", scoreColor: "#1d4ed8" },
+      "default": { border: "border-gray-200", bg: "bg-gray-50", text: "text-gray-800", scoreColor: "#11213a" }
+    };
+
+    const teamEmojis = {
+      "สีแดง": "❤️",
+      "สีเหลือง": "💛",
+      "สีเขียว": "💚",
+      "สีฟ้า": "🩵",
+      "สีม่วง": "💜",
+      "สีส้ม": "🧡",
+      "สีชมพู": "🩷",
+      "สีน้ำเงิน": "💙"
     };
 
     const refreshButton = document.getElementById("refresh-btn");
@@ -323,7 +350,8 @@
 
     function updateDashboardUI(scores, sportsData) {
       const winnerHeading = document.getElementById("winner-heading");
-      const leaderboard = document.getElementById("leaderboard-container");
+      const podiumTop = document.getElementById("leaderboard-podium-top");
+      const podiumRest = document.getElementById("leaderboard-podium-rest");
 
       if (scores.length === 0) {
         winnerHeading.textContent = "รอผลการแข่งขัน";
@@ -333,7 +361,8 @@
         document.getElementById("stat-total-value").textContent = "0";
         document.getElementById("stat-teams-value").textContent = "0";
         document.getElementById("stat-highest-value").textContent = "0";
-        leaderboard.innerHTML = '<p class="md:col-span-2 text-center text-[#62718a] py-7 bg-white/70 border border-white rounded-2xl">ยังไม่มีข้อมูลคะแนนรวม</p>';
+        podiumTop.innerHTML = '';
+        podiumRest.innerHTML = '<p class="md:col-span-2 text-center text-[#62718a] py-7 bg-white/70 border border-white rounded-2xl w-full">ยังไม่มีข้อมูลคะแนนรวม</p>';
         return;
       }
 
@@ -362,7 +391,8 @@
       document.getElementById("stat-teams-value").textContent = String(scores.length);
       document.getElementById("stat-highest-value").textContent = topScore.toLocaleString();
 
-      leaderboard.replaceChildren();
+      podiumTop.replaceChildren();
+      podiumRest.replaceChildren();
 
       let currentRank = 1;
       let previousScore = null;
@@ -371,8 +401,6 @@
         const points = Number(rawPoints);
         let displayRank = "-";
         let rankLabel = "ไม่มีคะแนน";
-        
-        // ตัวแปรเก็บอิโมจิ
         let rankEmojis = "";
 
         if (points > 0) {
@@ -381,40 +409,75 @@
           displayRank = currentRank;
           rankLabel = `อันดับที่ ${currentRank}`;
           
-          // กำหนดอิโมจิตามอันดับ 1, 2, 3
-          if (currentRank === 1) rankEmojis = " 🏆🥇";
-          else if (currentRank === 2) rankEmojis = " 🥈";
-          else if (currentRank === 3) rankEmojis = " 🥉";
+          if (currentRank === 1) rankEmojis = '<span class="text-2xl ml-1">🥇</span>';
+          else if (currentRank === 2) rankEmojis = '<span class="text-xl ml-1">🥈</span>';
+          else if (currentRank === 3) rankEmojis = '<span class="text-xl ml-1">🥉</span>';
         }
 
         const style = teamStyles[teamName] || teamStyles.default;
-        const sportsBadges = Object.entries(sportsData)
-          .filter(([, colors]) => colors[teamName] && Number(colors[teamName]) > 0)
-          .map(([sport, colors]) => `<span class="inline-block bg-gray-50 border border-gray-200 text-gray-500 text-[10px] px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`)
-          .join("") || '<span class="inline-block text-gray-400 text-[10px] mt-1">ยังไม่มีข้อมูลคะแนนรายกีฬา</span>';
+        const emoji = teamEmojis[teamName] || "";
+        
+        let sportsBadges = '';
+        for (const [sport, colors] of Object.entries(sportsData)) {
+            if (colors[teamName] && colors[teamName] > 0) {
+                sportsBadges += `<span class="inline-block bg-white text-gray-600 border border-white shadow-sm text-[10px] px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
+            }
+        }
+        if(!sportsBadges) {
+            sportsBadges = `<span class="inline-block text-gray-400 text-[10px] mt-1 bg-white/50 px-2 py-0.5 rounded">ยังไม่มีข้อมูลคะแนน</span>`;
+        }
 
-        const rankBgClass = points > 0 ? `${style.bg} ${style.text}` : "bg-gray-100 text-gray-400";
-        const badgeBgClass = points > 0 ? "bg-gray-100" : "bg-red-50 text-red-500";
+        let cardHTML = '';
+        const isWinner = (currentRank === 1 && points > 0);
+        const baseBoxStyle = `border-2 ${style.border} ${style.bg} rounded-[1.25rem] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all relative team-row`;
+        
+        if (isWinner) {
+            cardHTML = `
+            <article class="${baseBoxStyle} w-full z-30">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-12 h-12 shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 text-2xl ${style.text}">${displayRank}</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-extrabold text-[#11213a] text-xl sm:text-2xl flex flex-wrap items-center gap-2">
+                            ${emoji} ${teamName} ${rankEmojis}
+                            <span class="text-[10px] sm:text-xs font-bold ${style.text} bg-white border border-white px-2 py-0.5 rounded-full shadow-sm">${rankLabel}</span>
+                        </p>
+                        <div class="flex flex-wrap mt-1.5">${sportsBadges}</div>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 mt-3 sm:mt-0 flex flex-col items-start sm:items-end">
+                    <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border ${style.border} inline-block">
+                        <p class="text-4xl sm:text-5xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[11px] font-bold uppercase mt-2 text-[#7e8b9d]">คะแนนรวม</p>
+                </div>
+            </article>`;
+        } else {
+            cardHTML = `
+            <article class="${baseBoxStyle}">
+                <div class="flex items-center gap-4 flex-1">
+                    <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 text-xl ${style.text}">${displayRank}</div>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-extrabold text-[#11213a] text-lg sm:text-xl flex flex-wrap items-center gap-2">
+                            ${emoji} ${teamName} ${rankEmojis}
+                            <span class="text-[10px] sm:text-xs font-bold ${style.text} bg-white border border-white px-2 py-0.5 rounded-full shadow-sm">${rankLabel}</span>
+                        </p>
+                        <div class="flex flex-wrap mt-1">${sportsBadges}</div>
+                    </div>
+                </div>
+                <div class="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 mt-3 sm:mt-0 flex flex-col items-start sm:items-end">
+                    <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm border ${style.border} inline-block">
+                        <p class="text-3xl sm:text-4xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+                    </div>
+                    <p class="text-[11px] font-bold uppercase mt-1.5 text-[#7e8b9d]">คะแนนรวม</p>
+                </div>
+            </article>`;
+        }
 
-        const card = document.createElement("article");
-        card.className = `team-row rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border ${style.border} bg-white`;
-        card.innerHTML = `
-          <div class="flex items-center gap-4 flex-1">
-            <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-extrabold ${rankBgClass} text-lg">${displayRank}</div>
-            <div class="min-w-0 flex-1">
-              <p class="font-extrabold text-[#11213a] text-lg flex flex-wrap items-center gap-2">
-                ${teamName}<span class="text-xl">${rankEmojis}</span>
-                <span class="text-xs font-normal text-gray-500 ${badgeBgClass} px-2 py-0.5 rounded-full">${rankLabel}</span>
-              </p>
-              <div class="flex flex-wrap mt-0.5">${sportsBadges}</div>
-            </div>
-          </div>
-          <div class="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0 mt-2 sm:mt-0">
-            <p class="text-2xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
-            <p class="text-[11px] font-bold text-[#7e8b9d] uppercase">คะแนนรวม</p>
-          </div>
-        `;
-        leaderboard.appendChild(card);
+        if (isWinner) {
+            podiumTop.insertAdjacentHTML('beforeend', cardHTML);
+        } else {
+            podiumRest.insertAdjacentHTML('beforeend', cardHTML);
+        }
       });
     }
 
@@ -468,6 +531,7 @@
             }
 
             const style = teamStyles[teamName] || teamStyles.default;
+            const emoji = teamEmojis[teamName] || "";
             const rankBgClass = points > 0 ? `${style.bg} ${style.text}` : "bg-gray-100 text-gray-400";
 
             const card = document.createElement("article");
@@ -476,7 +540,7 @@
               <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center gap-3">
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold ${rankBgClass} text-sm">${displayRank}</div>
-                  <span class="font-extrabold text-lg text-[#11213a]">${teamName}</span>
+                  <span class="font-extrabold text-lg text-[#11213a] flex items-center gap-1.5">${emoji} ${teamName}</span>
                 </div>
                 <i data-lucide="${iconName}" class="${points > 0 ? style.text : "text-gray-300"}" style="width:22px;height:22px;"></i>
               </div>
