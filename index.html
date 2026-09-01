@@ -170,10 +170,11 @@
           <i data-lucide="list-ordered" style="width:16px;height:16px;"></i> 
           <span>ดูตารางคะแนนเต็ม</span> 
        </a>
-       <button id="refresh-btn" type="button" onclick="fetchScores()" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
+       
+       <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
         <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;" aria-hidden="true"></i> 
         <span>อัปเดตข้อมูล</span> 
-        <span id="last-update-text" class="text-xs font-normal text-gray-500"></span> 
+        <span id="last-update-text" class="text-xs font-normal text-gray-500">รออัปเดต...</span> 
        </button>
      </div>
     </div>
@@ -285,7 +286,6 @@
     // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ ⚠️
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec";
 
-    // เปลี่ยนโทนสีพื้นหลังให้เป็นสีอ่อน (Pastel) แบบเดียวกันหมด
     const teamStyles = {
       "สีแดง": { border: "border-red-200", bg: "bg-red-50", text: "text-red-600", scoreColor: "#e6343f" },
       "สีเหลือง": { border: "border-yellow-200", bg: "bg-yellow-50", text: "text-yellow-600", scoreColor: "#b58500" },
@@ -299,52 +299,64 @@
     };
 
     const teamEmojis = {
-      "สีแดง": "❤️",
-      "สีเหลือง": "💛",
-      "สีเขียว": "💚",
-      "สีฟ้า": "🩵",
-      "สีม่วง": "💜",
-      "สีส้ม": "🧡",
-      "สีชมพู": "🩷",
-      "สีน้ำเงิน": "💙"
+      "สีแดง": "❤️", "สีเหลือง": "💛", "สีเขียว": "💚", "สีฟ้า": "🩵",
+      "สีม่วง": "💜", "สีส้ม": "🧡", "สีชมพู": "🩷", "สีน้ำเงิน": "💙"
     };
 
     const refreshButton = document.getElementById("refresh-btn");
-    refreshButton.addEventListener("click", fetchScores);
+    refreshButton.addEventListener("click", () => fetchScores(false));
 
     function setStatus(message) {
       document.getElementById("last-update-text").textContent = message;
     }
 
-    async function fetchScores() {
+    let lastDataString = "";
+
+    async function fetchScores(isAuto = false) {
       const icon = document.getElementById("refresh-icon");
       const button = document.getElementById("refresh-btn");
 
       icon.classList.add("animate-spin");
-      button.disabled = true;
-      setStatus("กำลังดึงข้อมูล...");
+      
+      if (!isAuto) {
+        button.disabled = true;
+        setStatus("กำลังดึงข้อมูล...");
+      }
 
       try {
-        const response = await fetch(SCRIPT_URL);
+        const url = SCRIPT_URL + "?action=getData&t=" + new Date().getTime();
+        const response = await fetch(url, { cache: "no-store" });
         if (!response.ok) throw new Error("ไม่สามารถเชื่อมต่อข้อมูลคะแนนได้");
 
         const data = await response.json();
-        const total = data && data.total ? data.total : {};
-        const sports = data && data.sports ? data.sports : {};
-        const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
+        console.log("ข้อมูลที่ได้รับจาก Server (Dashboard):", data);
+        
+        const newDataString = JSON.stringify(data);
 
-        updateDashboardUI(sortedTotalScores, sports);
-        updateSportsBreakdown(sports);
+        // จัดการและเรนเดอร์ใหม่เฉพาะเมื่อข้อมูลมีการเปลี่ยนแปลงหรือผู้ใช้กดอัปเดตเอง
+        if (newDataString !== lastDataString || !isAuto) {
+          lastDataString = newDataString;
+
+          const total = data && data.total ? data.total : {};
+          const sports = data && data.sports ? data.sports : {};
+          const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
+
+          updateDashboardUI(sortedTotalScores, sports);
+          updateSportsBreakdown(sports);
+        }
 
         const now = new Date();
-        setStatus(`(ล่าสุด ${now.toLocaleTimeString("th-TH")})`);
+        setStatus(`(เช็คข้อมูลล่าสุด ${now.toLocaleTimeString("th-TH")})`);
       } catch (error) {
-        setStatus("(เชื่อมต่อขัดข้อง)");
-        document.getElementById("sports-panels").innerHTML =
-          '<p class="text-red-600 py-4 text-center border-2 border-dashed border-red-200 rounded-xl">ไม่สามารถโหลดข้อมูลคะแนนได้ โปรดลองอัปเดตอีกครั้ง</p>';
+        if (!isAuto) {
+          setStatus("(เชื่อมต่อขัดข้อง)");
+          document.getElementById("sports-panels").innerHTML =
+            '<p class="text-red-600 py-4 text-center border-2 border-dashed border-red-200 rounded-xl">ไม่สามารถโหลดข้อมูลคะแนนได้ โปรดลองอัปเดตอีกครั้ง</p>';
+        }
+        console.error("Fetch Error:", error);
       } finally {
         icon.classList.remove("animate-spin");
-        button.disabled = false;
+        if (!isAuto) button.disabled = false;
       }
     }
 
@@ -420,7 +432,9 @@
         let sportsBadges = '';
         for (const [sport, colors] of Object.entries(sportsData)) {
             if (colors[teamName] && colors[teamName] > 0) {
-                sportsBadges += `<span class="inline-block bg-white text-gray-600 border border-white shadow-sm text-[10px] px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
+                // ปรับป้ายคะแนนย่อยให้อ่านง่ายขึ้นเหมือนใน ranking.html
+                const badgeStyle = "bg-white text-gray-700 border border-gray-200 shadow-sm";
+                sportsBadges += `<span class="inline-block ${badgeStyle} text-[10px] font-medium px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
             }
         }
         if(!sportsBadges) {
@@ -570,7 +584,12 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       if (window.lucide) lucide.createIcons();
-      fetchScores();
+      fetchScores(false);
+
+      // ตั้งเวลาให้โหลดข้อมูลใหม่เบื้องหลังทุก 20 วินาที
+      setInterval(() => {
+        fetchScores(true);
+      }, 20000);
     });
   </script>
 </body>
