@@ -54,7 +54,6 @@
       </div>
      </div>
      
-     <!-- กลุ่มปุ่มเมนูด้านบน -->
      <div class="flex flex-wrap items-center gap-3">
        <a href="index.html" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold bg-[#11213a] text-white shadow-md hover:bg-blue-900 transition-colors"> 
           <i data-lucide="arrow-left" style="width:16px;height:16px;"></i> 
@@ -64,7 +63,7 @@
        <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
           <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;" aria-hidden="true"></i> 
           <span>อัปเดตข้อมูล</span> 
-          <span id="last-update-text" class="text-xs font-normal text-gray-500"></span> 
+          <span id="last-update-text" class="text-xs font-normal text-gray-500">รออัปเดต...</span> 
        </button>
      </div>
     </div>
@@ -72,18 +71,16 @@
 
    <main class="content-frame pt-0">
     <div class="flex flex-col gap-3 sm:gap-4">
-       <!-- แท่นรับรางวัลตรงกลางสำหรับที่ 1 -->
        <div id="leaderboard-podium-top" class="w-full flex flex-col gap-3 max-w-3xl mx-auto pb-2">
             <p class="text-center text-gray-500 py-10 font-bold animate-pulse">กำลังโหลดตารางคะแนน...</p>
        </div>
-       <!-- อันดับที่ 2 ลงไป จะถูกนำมาจัดเรียงใน Grid ด้านล่าง -->
        <div id="leaderboard-podium-rest" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4" aria-live="polite"></div>
      </div>
    </main>
   </div>
 
   <script>
-    // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ (ต้องเป็น URL เดียวกัน) ⚠️
+    // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ ⚠️
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec";
 
     const teamStyles = {
@@ -100,38 +97,54 @@
     const teamEmojis = { "สีแดง": "❤️", "สีเหลือง": "💛", "สีเขียว": "💚", "สีฟ้า": "🩵", "สีม่วง": "💜", "สีส้ม": "🧡", "สีชมพู": "🩷", "สีน้ำเงิน": "💙" };
 
     const refreshButton = document.getElementById("refresh-btn");
-    refreshButton.addEventListener("click", fetchScores);
+    refreshButton.addEventListener("click", () => fetchScores(false));
 
-    function setStatus(message) {
-      document.getElementById("last-update-text").textContent = message;
-    }
+    let lastDataString = "";
 
-    async function fetchScores() {
+    async function fetchScores(isAuto = false) {
       const icon = document.getElementById("refresh-icon");
       const button = document.getElementById("refresh-btn");
+      const statusText = document.getElementById("last-update-text");
 
       icon.classList.add("animate-spin");
-      button.disabled = true;
-      setStatus("กำลังดึงข้อมูล...");
+      
+      if (!isAuto) {
+        button.disabled = true;
+        statusText.textContent = "กำลังดึงข้อมูล...";
+      }
 
       try {
-        const response = await fetch(SCRIPT_URL);
+        const url = SCRIPT_URL + "?action=getData&t=" + new Date().getTime();
+        const response = await fetch(url, { cache: "no-store" });
+        
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
-        const total = data && data.total ? data.total : {};
-        const sports = data && data.sports ? data.sports : {};
-        const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
         
-        updateLeaderboardList(sortedTotalScores, sports);
+        console.log("ข้อมูลที่ได้รับจาก Server:", data);
+
+        const newDataString = JSON.stringify(data);
+
+        if (newDataString !== lastDataString || !isAuto) {
+          lastDataString = newDataString;
+
+          const total = data.total || {};
+          const sports = data.sports || {};
+          const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
+          
+          updateLeaderboardList(sortedTotalScores, sports);
+        }
         
         const now = new Date();
-        setStatus(`(ล่าสุด ${now.toLocaleTimeString("th-TH")})`);
+        statusText.textContent = `(เช็คข้อมูลล่าสุด ${now.toLocaleTimeString("th-TH")})`;
+
       } catch (error) {
-        setStatus("(เชื่อมต่อขัดข้อง)");
-        document.getElementById("leaderboard-podium-top").innerHTML = '<p class="text-red-600 py-4 text-center bg-white rounded-xl shadow-sm">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+        if (!isAuto) {
+          statusText.textContent = "(เชื่อมต่อขัดข้อง)";
+        }
+        console.error("Fetch Error:", error);
       } finally {
         icon.classList.remove("animate-spin");
-        button.disabled = false;
+        if (!isAuto) button.disabled = false;
       }
     }
 
@@ -166,13 +179,13 @@
 
         const style = teamStyles[teamName] || teamStyles.default;
         const emoji = teamEmojis[teamName] || "";
-        const isTop3 = (points > 0 && currentRank <= 3);
         let sportsBadges = '';
         
         for (const [sport, colors] of Object.entries(sportsData)) {
             if (colors[teamName] && colors[teamName] > 0) {
-                // ป้ายกีฬาเปลี่ยนให้เป็นสีขาวเสมอเพื่อให้อ่านง่ายบนพื้นหลังสีอ่อน
-                sportsBadges += `<span class="inline-block bg-white text-gray-600 border border-white shadow-sm text-[10px] px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
+                // แก้ไขตรงนี้ให้ป้ายคะแนนพื้นหลังขาว ตัวหนังสือสีเทาเข้มเสมอเพื่อให้อ่านง่าย
+                const badgeStyle = "bg-white text-gray-700 border border-gray-200 shadow-sm";
+                sportsBadges += `<span class="inline-block ${badgeStyle} text-[10px] font-medium px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
             }
         }
         if(!sportsBadges) {
@@ -182,7 +195,6 @@
         let cardHTML = '';
         const isWinner = (currentRank === 1 && points > 0);
         
-        // ใช้สไตล์พื้นฐานของทีมทุกอันดับ (สีอ่อนพาสเทล)
         const baseBoxStyle = `border-2 ${style.border} ${style.bg} rounded-[1.25rem] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all relative team-row`;
         
         if (isWinner) {
@@ -238,7 +250,12 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       if (window.lucide) lucide.createIcons();
-      fetchScores();
+      fetchScores(false);
+
+      // ตั้งเวลาเช็คทุกๆ 20 วินาที
+      setInterval(() => {
+        fetchScores(true);
+      }, 20000); 
     });
   </script>
 </body>
