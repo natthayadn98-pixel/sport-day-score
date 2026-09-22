@@ -4,16 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>หน้ากรรมการ - ฟอร์มกรอกคะแนนกีฬาสี</title>
-  <link rel="icon" type="image/png" href="st.png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <link rel="icon" href="logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
   <style>
     :root {
       --forest: #245a49;
       --deep-green: #194537;
       --mint: #dff5e9;
+      --mint-light: #f4fcf7;
       --line: #c8e7d4;
       --soft-ink: #5d7d70;
     }
@@ -25,35 +26,36 @@
       margin: 0;
       color: var(--deep-green);
       font-family: "Noto Sans Thai", sans-serif;
+      background-color: #f7faf8;
     }
 
     .app-wrapper {
       position: relative;
       width: 100%;
-      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+      min-height: 100vh;
       overflow: hidden;
       padding: 2rem 1.25rem;
     }
 
-    .leaf-orb { position: absolute; border-radius: 999px; pointer-events: none; filter: blur(1px); }
-    .leaf-orb-one { top: -8rem; left: -7rem; width: 24rem; height: 24rem; background: rgba(152, 219, 178, 0.42); }
-    .leaf-orb-two { right: -9rem; bottom: -10rem; width: 28rem; height: 28rem; background: rgba(191, 232, 204, 0.62); }
+    .leaf-orb { position: absolute; border-radius: 999px; pointer-events: none; filter: blur(2px); }
+    .leaf-orb-one { top: -8rem; left: -7rem; width: 26rem; height: 26rem; background: rgba(152, 219, 178, 0.42); }
+    .leaf-orb-two { right: -9rem; bottom: -10rem; width: 30rem; height: 30rem; background: rgba(191, 232, 204, 0.62); }
 
-    .score-card { box-shadow: 0 25px 60px rgba(37, 90, 73, 0.14); }
+    .score-card { box-shadow: 0 25px 60px rgba(37, 90, 73, 0.12); }
 
     .sport-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
     .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
 
     .choice-btn {
       flex: 1 1 auto;
-      border: 1px solid var(--line);
-      border-radius: 0.75rem;
+      border: 1.5px solid var(--line);
+      border-radius: 0.85rem;
       background: #ffffff;
       color: var(--soft-ink);
-      padding: 0.6rem 0.8rem;
+      padding: 0.65rem 0.8rem;
       font-size: 0.95rem;
       font-weight: 500;
-      transition: all 0.2s ease;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
       text-align: center;
       user-select: none;
@@ -66,7 +68,7 @@
       align-items: center;
       justify-content: center;
       gap: 0.35rem;
-      padding: 0.6rem 0.2rem;
+      padding: 0.65rem 0.2rem;
       cursor: grab;
     }
 
@@ -74,43 +76,75 @@
       cursor: grabbing;
     }
 
-    .choice-btn:hover:not(:disabled) { border-color: #9bcfb0; background: #f4fcf7; }
+    .choice-btn:hover:not(:disabled) { 
+      border-color: #9bcfb0; 
+      background: var(--mint-light); 
+      transform: translateY(-1px);
+    }
+
     .choice-btn.active {
       border-color: var(--forest);
       background: var(--mint);
       color: var(--forest);
       font-weight: 700;
-      box-shadow: 0 0 0 3px rgba(91, 167, 119, 0.16);
+      box-shadow: 0 0 0 3px rgba(36, 90, 73, 0.16);
     }
     
     .slot-badge.drag-over {
       border-color: var(--forest) !important;
       background-color: var(--mint) !important;
-      transform: scale(1.02);
+      transform: scale(1.03);
+      box-shadow: 0 0 0 3px rgba(36, 90, 73, 0.18);
     }
 
     .submit-action {
       background-color: #245a49;
       color: white;
-      box-shadow: 0 12px 24px rgba(41, 121, 79, .25);
+      box-shadow: 0 12px 24px rgba(41, 121, 79, .22);
       transition: all .2s ease;
     }
 
-    .submit-action:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.03); box-shadow: 0 16px 28px rgba(41, 121, 79, .3); }
+    .submit-action:hover:not(:disabled) { 
+      transform: translateY(-2px); 
+      filter: brightness(1.05); 
+      box-shadow: 0 16px 28px rgba(41, 121, 79, .28); 
+    }
     .submit-action:active:not(:disabled) { transform: translateY(0); }
-    .submit-action:disabled { cursor: not-allowed; opacity: 0.4; background-color: #5d7d70; box-shadow: none; transform: none; }
+    .submit-action:disabled { cursor: not-allowed; opacity: 0.45; background-color: #657e72; box-shadow: none; transform: none; }
+
+    .reset-action {
+      background-color: #ffffff;
+      color: #9b3530;
+      border: 1.5px solid #f3c7c4;
+      transition: all .2s ease;
+    }
+    .reset-action:hover:not(:disabled) {
+      background-color: #fff4f3;
+      border-color: #e09995;
+      color: #832722;
+      transform: translateY(-1px);
+    }
+    .reset-action:active:not(:disabled) { transform: translateY(0); }
+    .reset-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #eed7d5;
+      background-color: #fafafa;
+      color: #a08c8a;
+      transform: none;
+    }
 
     .status-message { display: none; }
     .status-message.is-visible { display: flex; animation: rise-in .3s ease-out both; }
 
-    @keyframes rise-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
     @media (min-width: 640px) {
       .color-grid { gap: 0.75rem; }
       .choice-btn.color-btn { padding: 0.75rem 0.5rem; }
     }
     @media (max-width: 480px) {
-      .choice-btn.sport-btn { font-size: 0.85rem; padding: 0.5rem 0.2rem; }
+      .choice-btn.sport-btn { font-size: 0.85rem; padding: 0.55rem 0.2rem; }
     }
   </style>
 </head>
@@ -118,26 +152,36 @@
   <div class="app-wrapper">
    <div class="leaf-orb leaf-orb-one"></div>
    <div class="leaf-orb leaf-orb-two"></div>
+   
    <main class="relative z-10 mx-auto w-full max-w-2xl">
     <section class="score-card overflow-hidden rounded-[2rem] border border-white/90 bg-white">
      <header class="relative overflow-hidden bg-mint px-6 pb-8 pt-8 sm:px-10 sm:pb-9 sm:pt-10">
       <div class="relative z-10">
-        <div class="mb-5 flex items-center gap-3">
-         <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/75 text-[#287352] shadow-sm"><i data-lucide="trophy" style="width:24px;height:24px"></i></div>
-         <span class="rounded-full px-3 py-1 text-sm font-bold tracking-wide bg-[#287352] text-white">สำหรับกรรมการ</span>
+        <div class="mb-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-[#245a49] shadow-sm"><i data-lucide="trophy" style="width:24px;height:24px"></i></div>
+            <span class="rounded-full px-3.5 py-1 text-sm font-bold tracking-wide bg-[#245a49] text-white shadow-sm">สำหรับกรรมการ</span>
+          </div>
+          <span class="text-xs text-[#5d7d70] bg-white/60 px-3 py-1 rounded-full font-medium hidden sm:inline-block">กีฬาสีประจำปี</span>
         </div>
-        <h1 class="text-2xl font-bold leading-tight">ระบบบันทึกคะแนนกีฬาสี</h1>
-        <p class="mt-3 text-sm leading-relaxed text-[#5d7d70]">กรุณาเลือกประเภทกีฬา จากนั้นคลิกหรือลากวางสีตามลำดับคะแนนให้ครบทั้ง 8 อันดับ</p>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#194537] leading-tight">ระบบบันทึกคะแนนกีฬาสี</h1>
+        <p class="mt-2.5 text-sm leading-relaxed text-[#5d7d70]">เลือกกีฬา จากนั้นคลิกหรือลากสีเพื่อจัดอันดับคะแนน 1 - 8 หากใส่ผิดสามารถกดปุ่มล้างข้อมูลได้ทันที</p>
       </div>
      </header>
 
      <div class="px-6 pb-8 pt-6 sm:px-10 sm:pb-10">
       <form id="score-form" novalidate>
-       <div class="grid gap-8">
+       <div class="grid gap-7">
         
          <!-- 1. เลือกประเภทกีฬา -->
          <div>
-            <label class="mb-3 block font-bold text-lg">1. ประเภทกีฬา</label> 
+            <div class="mb-3 flex items-center justify-between">
+              <label class="block font-bold text-lg text-[#194537] flex items-center gap-2">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#245a49] text-xs text-white">1</span>
+                ประเภทกีฬา
+              </label>
+              <span id="selected-sport-label" class="text-xs text-[#5d7d70] font-medium hidden sm:inline">ยังไม่ได้เลือก</span>
+            </div>
             <div class="sport-grid">
                 <button type="button" class="choice-btn sport-btn" data-value="ตีกอล์ฟมะเขือ">ตีกอล์ฟมะเขือ</button>
                 <button type="button" class="choice-btn sport-btn" data-value="วิ่งผลัดพิสดาร">วิ่งผลัดพิสดาร</button>
@@ -148,13 +192,23 @@
             </div>
          </div>
 
-         <!-- 2. แผงปุ่มเลือกสี -->
+         <!-- 2. แผงปุ่มเลือกสี (คลิกหรือลากวาง) -->
          <div>
-            <div class="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <label class="block font-bold text-lg">2. จัดอันดับสี (คลิกหรือลากวาง)</label> 
-                <span id="counter-badge" class="w-fit rounded-full bg-[#f0f9f4] px-3 py-1 text-xs font-bold text-[#4b9a6b] border border-[#c8e7d4]">จัดอันดับแล้ว 0/8</span>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <label class="block font-bold text-lg text-[#194537] flex items-center gap-2">
+                  <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#245a49] text-xs text-white">2</span>
+                  จัดอันดับสี (คลิกหรือลากวาง)
+                </label> 
+                <div class="flex items-center gap-2">
+                  <span id="counter-badge" class="w-fit rounded-full bg-[#f0f9f4] px-3 py-1 text-xs font-bold text-[#4b9a6b] border border-[#c8e7d4] transition-all">จัดอันดับแล้ว 0/8</span>
+                  <button type="button" id="quick-clear-colors" class="inline-flex items-center gap-1 text-xs text-[#9b3530] hover:text-[#832722] hover:bg-[#fff5f3] px-2.5 py-1 rounded-lg border border-transparent hover:border-[#f3c7c4] transition-all" title="ล้างสีที่จัดอันดับไว้ทั้งหมด">
+                    <i data-lucide="rotate-ccw" style="width:13px;height:13px"></i>
+                    <span>ล้างสี</span>
+                  </button>
+                </div>
             </div>
-            <div class="color-grid mb-4">
+            
+            <div class="color-grid mb-3">
                 <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีแดง" data-emoji="❤️">
                     <span class="text-xl leading-none">❤️</span><span class="text-xs mt-1">สีแดง</span>
                 </button>
@@ -181,28 +235,47 @@
                 </button>
             </div>
 
+            <p class="text-xs text-[#5d7d70] mb-3 flex items-center gap-1.5">
+              <i data-lucide="info" style="width:13px;height:13px"></i>
+              <span>คลิกเพื่อใส่ช่องว่างถัดไป หรือลากวางเฉพาะช่องที่ต้องการ (คลิกที่ช่องเพื่อนำออก)</span>
+            </p>
+
             <!-- กล่องแสดงผล 8 ช่อง -->
-            <p class="text-xs text-[#5d7d70] mb-3">* ลากสีมาวางที่ช่อง หรือคลิกที่ช่องเพื่อเอาสีออก</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="rank-slots-container">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="rank-slots-container">
                 <!-- สคริปต์จะสร้างช่อง 1-8 ให้อัตโนมัติ -->
             </div>
          </div>
 
-        <!-- แจ้งเตือน -->
+        <!-- กล่องแจ้งเตือนการล้างข้อมูล / แจ้งเตือนข้อผิดพลาด / สำเร็จ -->
+        <div id="info-status" class="status-message items-center gap-3 rounded-2xl border border-[#c8e7d4] bg-[#f2faf5] p-3.5 text-[#245a49]">
+            <i data-lucide="sparkles" class="shrink-0" style="width:18px;height:18px"></i>
+            <p id="info-text" class="text-sm font-medium">ล้างข้อมูลเรียบร้อยแล้ว พร้อมกรอกข้อมูลใหม่</p>
+        </div>
+
         <div id="error-status" class="status-message items-start gap-3 rounded-2xl border border-[#f0beb9] bg-[#fff5f3] p-4 text-[#a3453e]">
             <i data-lucide="circle-alert" class="mt-0.5 shrink-0" style="width:20px;height:20px"></i>
             <p id="error-text" class="text-sm font-medium leading-relaxed">กรุณากรอกข้อมูลให้ครบถ้วน</p>
         </div>
+        
         <div id="success-status" class="status-message items-start gap-3 rounded-2xl border border-[#b9e1c8] bg-[#f1fbf4] p-4 text-[#256744]">
             <i data-lucide="circle-check" class="mt-0.5 shrink-0" style="width:20px;height:20px"></i>
             <p class="text-sm font-medium leading-relaxed">บันทึกคะแนนครบทั้ง 8 อันดับสำเร็จ!</p>
         </div>
 
-        <!-- ปุ่ม Submit -->
-        <button id="submit-button" disabled class="submit-action flex w-full items-center justify-center gap-2 rounded-2xl px-5 py-4 font-bold focus:outline-none focus:ring-4 focus:ring-[#6fbd8d]/30" type="submit"> 
-            <i data-lucide="send" style="width:19px;height:19px"></i> 
-            <span id="submit-text">บันทึกผลการแข่งขัน</span> 
-        </button>
+        <!-- แผงปุ่มบันทึก และ ปุ่มเคลียร์ข้อมูล -->
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <!-- ปุ่มเคลียร์ / รีเซ็ตทั้งหมด -->
+            <button id="reset-button" type="button" class="reset-action flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 sm:py-4 font-bold text-sm sm:text-base sm:w-1/3 focus:outline-none focus:ring-4 focus:ring-red-200">
+                <i data-lucide="rotate-ccw" style="width:18px;height:18px"></i>
+                <span>ล้างข้อมูล</span>
+            </button>
+
+            <!-- ปุ่ม Submit -->
+            <button id="submit-button" disabled class="submit-action flex flex-1 items-center justify-center gap-2 rounded-2xl px-5 py-3.5 sm:py-4 font-bold text-sm sm:text-base focus:outline-none focus:ring-4 focus:ring-[#6fbd8d]/30" type="submit"> 
+                <i data-lucide="send" style="width:18px;height:18px"></i> 
+                <span id="submit-text">บันทึกผลการแข่งขัน</span> 
+            </button>
+        </div>
 
        </div>
       </form>
@@ -212,15 +285,21 @@
   </div>
 
   <script>
+    // ⚠️ 1. URL ของ Web App ⚠️
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec';
 
     const form = document.getElementById("score-form");
     const submitButton = document.getElementById("submit-button");
     const submitText = document.getElementById("submit-text");
+    const resetButton = document.getElementById("reset-button");
+    const quickClearColorsBtn = document.getElementById("quick-clear-colors");
     const errorStatus = document.getElementById("error-status");
     const successStatus = document.getElementById("success-status");
+    const infoStatus = document.getElementById("info-status");
     const errorText = document.getElementById("error-text");
+    const infoText = document.getElementById("info-text");
     const counterBadge = document.getElementById("counter-badge");
+    const selectedSportLabel = document.getElementById("selected-sport-label");
     
     let selectedSport = "";
     
@@ -233,17 +312,18 @@
     
     let assignments = Array(8).fill(null);
 
+    // สร้างช่องคะแนนทั้ง 8 อันดับ
     const slotsContainer = document.getElementById("rank-slots-container");
     ranksData.forEach((r, idx) => {
         slotsContainer.innerHTML += `
-        <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3 shadow-sm hover:border-[#9bcfb0] transition-colors">
+        <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3 shadow-xs hover:border-[#9bcfb0] transition-colors">
             <div>
-                <span class="block font-bold text-[#245a49]">อันดับที่ ${r.rank}</span>
+                <span class="block font-bold text-[#245a49] text-sm">อันดับที่ ${r.rank}</span>
                 <span class="block text-xs text-[#5d7d70]">${r.score} คะแนน</span>
             </div>
-            <div class="slot-badge flex items-center justify-between w-[125px] rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm font-medium text-gray-500 cursor-pointer hover:bg-[#fff5f3] hover:border-[#f0beb9] hover:text-[#a3453e] transition-all" data-index="${idx}" title="คลิกเพื่อลบออก หรือลากสีมาวางที่นี่">
-                <span class="badge-content">-- ว่าง --</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="remove-icon hidden opacity-60"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <div class="slot-badge flex items-center justify-between w-[125px] rounded-lg border border-gray-300 bg-gray-50 px-2.5 py-1.5 text-xs sm:text-sm font-medium text-gray-500 cursor-pointer hover:bg-[#fff5f3] hover:border-[#f0beb9] hover:text-[#a3453e] transition-all" data-index="${idx}" title="คลิกเพื่อลบสีนี้ออก หรือลากสีมาวางที่นี่">
+                <span class="badge-content truncate mr-1">-- ว่าง --</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="remove-icon hidden opacity-70 shrink-0"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </div>
         </div>
         `;
@@ -253,7 +333,7 @@
     const slotBadges = document.querySelectorAll('.slot-badge');
     const sportButtons = document.querySelectorAll('.sport-btn');
 
-    // Drag and Drop สำหรับปุ่มสี
+    // 1. ระบบลากวาง (Drag & Drop) และคลิกเพื่อเลือก
     colorButtons.forEach(btn => {
         btn.addEventListener('dragstart', (e) => {
             if (btn.disabled) {
@@ -274,21 +354,25 @@
             const emptyIdx = assignments.findIndex(a => a === null);
             if (emptyIdx !== -1) {
                 assignments[emptyIdx] = { color, emoji };
+                hideStatus();
                 updateUI();
             }
         });
     });
 
-    // Event สำหรับช่องรับการวาง
+    // 2. Event สำหรับช่องอันดับ 1-8
     slotBadges.forEach(badge => {
+        // คลิกเพื่อเอาสีออก
         badge.addEventListener('click', () => {
             const idx = Number(badge.dataset.index);
             if (assignments[idx] !== null) {
                 assignments[idx] = null;
+                hideStatus();
                 updateUI();
             }
         });
 
+        // ลากมาวาง
         badge.addEventListener('dragover', (e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
@@ -306,29 +390,69 @@
             const rawData = e.dataTransfer.getData('text/plain');
             if (!rawData) return;
 
-            const data = JSON.parse(rawData);
-            const targetIdx = Number(badge.dataset.index);
+            try {
+                const data = JSON.parse(rawData);
+                const targetIdx = Number(badge.dataset.index);
 
-            // หากสีนี้มีอยู่ในช่องอื่นอยู่แล้ว ให้เคลียร์ช่องเดิมออกก่อน
-            const existingIdx = assignments.findIndex(a => a && a.color === data.color);
-            if (existingIdx !== -1) {
-                assignments[existingIdx] = null;
+                // หากสีนี้อยู่ในช่องอื่นอยู่แล้ว ให้เคลียร์ช่องเดิมออกก่อน (ย้ายตำแหน่ง)
+                const existingIdx = assignments.findIndex(a => a && a.color === data.color);
+                if (existingIdx !== -1) {
+                    assignments[existingIdx] = null;
+                }
+
+                assignments[targetIdx] = { color: data.color, emoji: data.emoji };
+                hideStatus();
+                updateUI();
+            } catch (err) {
+                console.error("Drop error:", err);
             }
-
-            assignments[targetIdx] = { color: data.color, emoji: data.emoji };
-            updateUI();
         });
     });
 
+    // 3. ปุ่มเลือกกีฬา
     sportButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             sportButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             selectedSport = btn.dataset.value;
+            selectedSportLabel.textContent = `เลือก: ${selectedSport}`;
+            selectedSportLabel.classList.remove('hidden');
+            hideStatus();
             updateUI();
         });
     });
 
+    // 4. ฟังก์ชันล้างข้อมูลทั้งหมด (Reset All)
+    function resetAllData(notify = true) {
+        selectedSport = "";
+        sportButtons.forEach(b => b.classList.remove('active'));
+        selectedSportLabel.textContent = "ยังไม่ได้เลือก";
+        assignments = Array(8).fill(null);
+        updateUI();
+
+        if (notify) {
+            showInfoMessage("ล้างข้อมูลทั้งหมดเรียบร้อยแล้ว");
+        }
+    }
+
+    // 5. ฟังก์ชันล้างเฉพาะสีที่จัด (Reset Colors Only)
+    function resetColorsOnly() {
+        const hasColor = assignments.some(a => a !== null);
+        if (!hasColor) return;
+        assignments = Array(8).fill(null);
+        updateUI();
+        showInfoMessage("ล้างการจัดอันดับสีเรียบร้อยแล้ว");
+    }
+
+    resetButton.addEventListener('click', () => {
+        const hasData = selectedSport || assignments.some(a => a !== null);
+        if (!hasData) return;
+        resetAllData(true);
+    });
+
+    quickClearColorsBtn.addEventListener('click', resetColorsOnly);
+
+    // 6. อัปเดต UI และตรวจสอบความถูกต้อง
     function updateUI() {
         let filledCount = 0;
         assignments.forEach((item, idx) => {
@@ -352,6 +476,7 @@
             }
         });
 
+        // จัดการสถานะปุ่มสี (disable เมื่อถูกเลือกไปแล้ว)
         colorButtons.forEach(btn => {
             const isUsed = assignments.some(a => a && a.color === btn.dataset.value);
             if (isUsed) {
@@ -365,29 +490,60 @@
             }
         });
 
+        // ป้ายแสดงจำนวนที่จัดอันดับแล้ว
         counterBadge.textContent = `จัดอันดับแล้ว ${filledCount}/8`;
         if (filledCount === 8) {
-            counterBadge.classList.replace("bg-[#f0f9f4]", "bg-[#287352]");
+            counterBadge.classList.replace("bg-[#f0f9f4]", "bg-[#245a49]");
             counterBadge.classList.replace("text-[#4b9a6b]", "text-white");
         } else {
-            counterBadge.classList.replace("bg-[#287352]", "bg-[#f0f9f4]");
+            counterBadge.classList.replace("bg-[#245a49]", "bg-[#f0f9f4]");
             counterBadge.classList.replace("text-white", "text-[#4b9a6b]");
         }
 
+        // ปิดปุ่มรีเซ็ตสีถ้าไม่มีสีใดถูกจัดอยู่
+        quickClearColorsBtn.disabled = filledCount === 0;
+        quickClearColorsBtn.style.opacity = filledCount === 0 ? "0.4" : "1";
+
+        // ปิด/เปิดปุ่ม Reset All ถ้าไม่มีข้อมูลใดๆ ในฟอร์ม
+        const hasAnyData = selectedSport !== "" || filledCount > 0;
+        resetButton.disabled = !hasAnyData;
+
+        // ปิด/เปิดปุ่มส่งคะแนน
         submitButton.disabled = !(selectedSport && filledCount === 8);
     }
 
-    function showStatus(type, message = "") {
-      errorStatus.classList.toggle("is-visible", type === "error");
-      successStatus.classList.toggle("is-visible", type === "success");
-      if (message) errorText.textContent = message;
+    function hideStatus() {
+      errorStatus.classList.remove("is-visible");
+      successStatus.classList.remove("is-visible");
+      infoStatus.classList.remove("is-visible");
     }
 
+    function showStatus(type, message = "") {
+      hideStatus();
+      if (type === "error") {
+        errorStatus.classList.add("is-visible");
+        if (message) errorText.textContent = message;
+      } else if (type === "success") {
+        successStatus.classList.add("is-visible");
+      }
+    }
+
+    function showInfoMessage(msg) {
+      hideStatus();
+      infoText.textContent = msg;
+      infoStatus.classList.add("is-visible");
+      setTimeout(() => {
+        infoStatus.classList.remove("is-visible");
+      }, 3500);
+    }
+
+    // 7. การส่งข้อมูลไปยัง Google Apps Script
     form.addEventListener("submit", async function(event) {
       event.preventDefault();
       if (submitButton.disabled) return;
 
       submitButton.disabled = true;
+      resetButton.disabled = true;
       submitButton.style.cursor = "wait"; 
       submitText.textContent = "กำลังบันทึกข้อมูล...";
 
@@ -410,10 +566,7 @@
 
         if (successCount === 8) {
             showStatus("success");
-            selectedSport = "";
-            sportButtons.forEach(b => b.classList.remove('active'));
-            assignments = Array(8).fill(null);
-            updateUI();
+            resetAllData(false);
         } else {
             showStatus("error", `บันทึกสำเร็จเพียง ${successCount}/8 รายการ กรุณาลองใหม่อีกครั้ง`);
             updateUI();
@@ -425,11 +578,13 @@
       } finally {
         submitText.textContent = "บันทึกผลการแข่งขัน";
         submitButton.style.cursor = ""; 
+        resetButton.disabled = false;
       }
     });
 
     document.addEventListener("DOMContentLoaded", function() {
       if (window.lucide) window.lucide.createIcons();
+      updateUI();
     });
   </script>
 </body>
