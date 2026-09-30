@@ -1,1133 +1,646 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Admin - CLT OUTING WALK & RUN 2026</title>
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- QRCode.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- SheetJS (xlsx) สำหรับ Export ข้อมูลเป็น Excel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้ากรรมการ - ฟอร์มกรอกคะแนนกีฬาสี</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Kanit', sans-serif;
-      background-color: #f1f5f9;
-      padding: 16px 12px;
-      color: #1e293b;
-    }
-    .main-container {
-      max-width: 1250px;
-      margin: 0 auto;
-    }
-    .stat-card {
-      background: #ffffff;
-      border-radius: 16px;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-      padding: 16px 18px;
-    }
-    .live-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.82rem;
-      background: #ecfdf5;
-      color: #059669;
-      padding: 4px 12px;
-      border-radius: 20px;
-      border: 1px solid #a7f3d0;
-    }
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #10b981;
-      border-radius: 50%;
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-      animation: pulse 1.8s infinite;
-    }
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    :root {
+      --forest: #245a49;
+      --deep-green: #194537;
+      --mint: #dff5e9;
+      --mint-light: #f4fcf7;
+      --line: #c8e7d4;
+      --soft-ink: #5d7d70;
     }
 
-    #loginOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
+    * { box-sizing: border-box; }
+
+    body {
       width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      z-index: 9999;
+      margin: 0;
+      color: var(--deep-green);
+      font-family: "Noto Sans Thai", sans-serif;
+      background-color: #f7faf8;
+    }
+
+    .app-wrapper {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      overflow: hidden;
+      padding: 2rem 1.25rem;
+    }
+
+    .leaf-orb { position: absolute; border-radius: 999px; pointer-events: none; filter: blur(2px); }
+    .leaf-orb-one { top: -8rem; left: -7rem; width: 26rem; height: 26rem; background: rgba(152, 219, 178, 0.42); }
+    .leaf-orb-two { right: -9rem; bottom: -10rem; width: 30rem; height: 30rem; background: rgba(191, 232, 204, 0.62); }
+
+    .score-card { box-shadow: 0 25px 60px rgba(37, 90, 73, 0.12); }
+
+    .sport-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+    .color-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+
+    .choice-btn {
+      flex: 1 1 auto;
+      border: 1.5px solid var(--line);
+      border-radius: 0.85rem;
+      background: #ffffff;
+      color: var(--soft-ink);
+      padding: 0.65rem 0.8rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      text-align: center;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-    }
-    .login-card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 35px 25px;
-      max-width: 380px;
-      width: 100%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-      text-align: center;
-    }
-    .pin-input {
-      font-size: 1.8rem;
-      letter-spacing: 0.35rem;
-      text-align: center;
-      border-radius: 12px;
-      font-weight: bold;
+      gap: 0.25rem;
     }
 
-    /* ปุ่มฟิลเตอร์ */
-    .filter-btn-group {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding-bottom: 6px;
-      white-space: nowrap;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .filter-btn-group::-webkit-scrollbar { display: none; }
-    .filter-btn {
-      font-size: 0.88rem;
-      padding: 7px 14px;
-      border-radius: 25px !important;
-      border: 1px solid #cbd5e1;
-      background-color: #ffffff;
-      color: #475569;
-      transition: all 0.2s ease-in-out;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      user-select: none;
-      flex-shrink: 0;
-    }
-    .filter-btn:active { transform: scale(0.96); }
-    .btn-check:checked + .filter-btn {
-      background-color: #0284c7;
-      border-color: #0284c7;
-      color: #ffffff;
-      font-weight: 500;
-      box-shadow: 0 3px 8px rgba(2, 132, 199, 0.3);
-    }
-    .btn-check:checked + .filter-btn .count-badge {
-      background-color: rgba(255, 255, 255, 0.25);
-      color: #ffffff;
-    }
-    .btn-check:checked + .filter-btn-orange {
-      background-color: #ea580c !important;
-      border-color: #ea580c !important;
-      color: #ffffff !important;
-      box-shadow: 0 3px 8px rgba(234, 88, 12, 0.3);
-    }
-
-    .count-badge {
-      font-size: 0.75rem;
-      background-color: #e2e8f0;
-      color: #334155;
-      padding: 1px 7px;
-      border-radius: 12px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
-
-    .branch-summary-banner {
-      background: #f0f9ff;
-      border: 1px solid #bae6fd;
-      border-radius: 12px;
-      padding: 10px 14px;
-      font-size: 0.88rem;
-      color: #0369a1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .badge-walk { background-color: #e0f2fe; color: #0369a1; font-weight: 500; }
-    .badge-run { background-color: #ffedd5; color: #c2410c; font-weight: 500; }
-
-    /* ==========================================================================
-       สเปกแผ่นริสต์แบนด์
-       ========================================================================== */
-    .tyvek-sheet {
-      width: 240mm;
-      height: 248mm;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: row;
-      background: transparent;
-      box-sizing: border-box;
-      page-break-after: always;
-      break-after: page;
-      border: none !important;
-    }
-
-    .tyvek-strip {
-      width: 24mm;
-      height: 248mm;
-      box-sizing: border-box;
+    .choice-btn.color-btn {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 12mm 0 0 0;
-      position: relative;
-      background: transparent;
-      text-align: center;
-      border: none !important;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.65rem 0.2rem;
+      cursor: grab;
     }
 
-    .tyvek-content-wrapper {
-      width: 17mm;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 0 auto;
+    .choice-btn.color-btn:active {
+      cursor: grabbing;
     }
 
-    .tyvek-header {
-      font-size: 4.8pt;
+    .choice-btn:hover:not(:disabled) { 
+      border-color: #9bcfb0; 
+      background: var(--mint-light); 
+      transform: translateY(-1px);
+    }
+
+    .choice-btn.active {
+      border-color: var(--forest);
+      background: var(--mint);
+      color: var(--forest);
       font-weight: 700;
-      line-height: 1.1;
-      color: #000000;
-      margin-bottom: 1.5mm;
-      text-transform: uppercase;
-      word-break: break-word;
-      white-space: normal;
+      box-shadow: 0 0 0 3px rgba(36, 90, 73, 0.16);
+    }
+
+    .choice-btn.sport-completed {
+      background-color: #eafaf1;
+      border-color: #8ed3aa;
+      color: #1b5e3b;
     }
     
-    .tyvek-qr {
-      width: 13.5mm;
-      height: 13.5mm;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1.5mm;
-    }
-    .tyvek-qr canvas, .tyvek-qr img {
-      width: 13.5mm !important;
-      height: 13.5mm !important;
+    .slot-badge.drag-over {
+      border-color: var(--forest) !important;
+      background-color: var(--mint) !important;
+      transform: scale(1.03);
+      box-shadow: 0 0 0 3px rgba(36, 90, 73, 0.18);
     }
 
-    .tyvek-id {
-      font-size: 7.5pt;
-      font-weight: 800;
-      color: #000000;
-      line-height: 1.1;
-      margin-bottom: 1mm;
-      letter-spacing: -0.2px;
+    .submit-action {
+      background-color: #245a49;
+      color: white;
+      box-shadow: 0 12px 24px rgba(41, 121, 79, .22);
+      transition: all .2s ease;
     }
 
-    /* บังคับชื่อ-นามสกุลให้อยู่บรรทัดเดียวกันเสมอ ห้ามตกบรรทัด */
-    .tyvek-name {
-      font-size: 5.2pt;
-      font-weight: 700;
-      color: #000000;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: clip;
-      max-width: 17mm;
-      margin-bottom: 1mm;
+    .submit-action:hover:not(:disabled) { 
+      transform: translateY(-2px); 
+      filter: brightness(1.05); 
+      box-shadow: 0 16px 28px rgba(41, 121, 79, .28); 
+    }
+    .submit-action:active:not(:disabled) { transform: translateY(0); }
+    .submit-action:disabled { cursor: not-allowed; opacity: 0.45; background-color: #657e72; box-shadow: none; transform: none; }
+
+    .reset-action {
+      background-color: #ffffff;
+      color: #9b3530;
+      border: 1.5px solid #f3c7c4;
+      transition: all .2s ease;
+    }
+    .reset-action:hover:not(:disabled) {
+      background-color: #fff4f3;
+      border-color: #e09995;
+      color: #832722;
+      transform: translateY(-1px);
+    }
+    .reset-action:active:not(:disabled) { transform: translateY(0); }
+    .reset-action:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: #eed7d5;
+      background-color: #fafafa;
+      color: #a08c8a;
+      transform: none;
     }
 
-    .tyvek-badge {
-      font-size: 5.0pt;
-      font-weight: 700;
-      color: #000000;
-      border: 0.7px solid #000000;
-      border-radius: 2.5px;
-      padding: 0.5px 2px;
-      margin-bottom: 1mm;
-      white-space: nowrap;
-      transform: scale(0.92);
+    .status-message { display: none; }
+    .status-message.is-visible { display: flex; animation: rise-in .3s ease-out both; }
+
+    @keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (min-width: 640px) {
+      .color-grid { gap: 0.75rem; }
+      .choice-btn.color-btn { padding: 0.75rem 0.5rem; }
     }
-
-    .tyvek-branch {
-      font-size: 5.0pt;
-      font-weight: 600;
-      color: #222222;
-      margin-bottom: 2mm;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 17mm;
-    }
-
-    .tyvek-rotated-text {
-      writing-mode: vertical-rl;
-      text-orientation: mixed;
-      transform: rotate(180deg);
-      font-size: 8.5pt;
-      font-weight: 700;
-      letter-spacing: 2px;
-      color: #000000;
-      margin-top: auto;
-      margin-bottom: 30mm;
-      white-space: nowrap;
-    }
-
-    #batchPrintContainer { display: none; }
-
-    /* Toast */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 10000;
-    }
-    .custom-toast {
-      background: #ffffff;
-      border-left: 6px solid #10b981;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 280px;
-      animation: slideIn 0.3s ease-out;
-    }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-
-    @page {
-      size: A4 portrait;
-      margin: 6mm 4mm;
-    }
-
-    @media print {
-      body * { visibility: hidden !important; }
-      body {
-        background: #ffffff !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-
-      body.printing-batch #batchPrintContainer,
-      body.printing-batch #batchPrintContainer * {
-        visibility: visible !important;
-      }
-      body.printing-batch #batchPrintContainer {
-        display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 0;
-      }
-      .tyvek-sheet {
-        margin: 0 auto !important;
-        border: none !important;
-      }
-      .tyvek-strip {
-        border: none !important;
-      }
-
-      body.printing-single #printSingleArea,
-      body.printing-single #printSingleArea * {
-        visibility: visible !important;
-      }
-      body.printing-single #printSingleArea {
-        position: absolute;
-        left: 10mm;
-        top: 10mm;
-      }
-    }
-
-    @media (max-width: 575.98px) {
-      body { padding: 12px 8px; }
-      .card-body { padding: 16px 12px !important; }
-      .stat-card { padding: 12px 14px; }
-      .stat-card h4 { font-size: 1.3rem; }
-      .table { font-size: 0.88rem; }
-      .filter-btn { font-size: 0.82rem; padding: 6px 12px; }
+    @media (max-width: 480px) {
+      .choice-btn.sport-btn { font-size: 0.85rem; padding: 0.55rem 0.2rem; }
     }
   </style>
 </head>
 <body>
-
-<div class="toast-container" id="toastBox"></div>
-
-<!-- หน้าต่างใส่รหัส PIN: 999 -->
-<div id="loginOverlay">
-  <div class="login-card">
-    <div class="display-6 mb-2">🔒</div>
-    <h4 class="fw-bold mb-1">ระบบจัดการ Admin</h4>
-    <p class="text-muted small mb-4">กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบ</p>
-    
-    <form id="loginForm">
-      <div class="mb-3">
-        <input type="password" id="pinInput" class="form-control pin-input" maxlength="6" placeholder="•••" autofocus required>
-        <div id="loginError" class="text-danger small mt-2 d-none">รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง</div>
-      </div>
-      <button type="submit" class="btn btn-primary w-100 py-2 fs-6 fw-bold rounded-3">เข้าสู่ระบบ</button>
-    </form>
-  </div>
-</div>
-
-<!-- เนื้อหา Dashboard -->
-<div id="adminContent" class="main-container d-none">
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <div>
-      <div class="d-flex align-items-center gap-2 mb-1">
-        <h4 class="fw-bold mb-0 text-primary">🎽 จัดการริสต์แบนด์ (แผ่นละ 10 เส้น)</h4>
-        <span class="live-indicator">
-          <span class="live-dot"></span> สด
-        </span>
-      </div>
-      <small class="text-muted d-block">CLT OUTING WALK & RUN 2026</small>
-    </div>
-    <div class="d-flex gap-2 flex-wrap w-100 w-sm-auto justify-content-between justify-content-sm-end mt-2 mt-sm-0">
-      <button onclick="exportToExcel()" class="btn btn-outline-success btn-sm px-3 py-2 shadow-sm fw-semibold">
-        📊 Export Excel
-      </button>
-      <button onclick="printAllWristbands()" id="printAllBtn" class="btn btn-success btn-sm px-3 py-2 shadow-sm fw-semibold">
-        🖨️ พิมพ์แผ่นริสต์แบนด์ (10 เส้น)
-      </button>
-      <button onclick="fetchData(true)" id="refreshBtn" class="btn btn-primary btn-sm px-3 py-2 shadow-sm">
-        🔄 รีเฟรช
-      </button>
-      <button onclick="logout()" class="btn btn-outline-danger btn-sm px-2 py-2 shadow-sm">
-        🚪
-      </button>
-    </div>
-  </div>
-
-  <!-- แดชบอร์ดสรุปยอด -->
-  <div class="row g-2 mb-3">
-    <div class="col-4">
-      <div class="stat-card">
-        <span class="text-muted small d-block" style="font-size: 0.75rem;">ยอดรวม</span>
-        <h4 class="fw-bold mb-0 text-dark" id="totalCount">0</h4>
-      </div>
-    </div>
-    <div class="col-4">
-      <div class="stat-card border-start border-4 border-info">
-        <span class="text-muted small d-block" style="font-size: 0.75rem;">เดิน 2.5K</span>
-        <h4 class="fw-bold mb-0 text-primary" id="walkCount">0</h4>
-      </div>
-    </div>
-    <div class="col-4">
-      <div class="stat-card border-start border-4 border-warning">
-        <span class="text-muted small d-block" style="font-size: 0.75rem;">วิ่ง 5K</span>
-        <h4 class="fw-bold mb-0 text-warning" id="runCount">0</h4>
-      </div>
-    </div>
-  </div>
-
-  <!-- แผงค้นหาและ Button Pills Filter -->
-  <div class="card mb-3 border-0 shadow-sm rounded-4">
-    <div class="card-body p-3">
-      <div class="mb-3">
-        <input type="text" id="searchInput" class="form-control form-control-sm py-2 fs-6 rounded-3" placeholder="🔍 ค้นหาชื่อ-สกุล หรือ รหัส (CLT-0001)..." oninput="handleSearchChange()">
-      </div>
-
-      <div class="mb-3">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <small class="text-muted fw-bold">🏢 เลือกสาขา (จำนวนสมาชิก):</small>
-          <small class="text-muted d-sm-none" style="font-size: 0.7rem;">← เลื่อนดูสาขา →</small>
-        </div>
-        <div class="filter-btn-group" id="branchBtnGroup">
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_all" value="" checked onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_all">ทั้งหมด <span class="count-badge" id="cnt_all">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_hq" value="สำนักงานใหญ่" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_hq">สำนักงานใหญ่ <span class="count-badge" id="cnt_hq">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_bkk" value="สาขากรุงเทพ" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_bkk">สาขากรุงเทพ <span class="count-badge" id="cnt_bkk">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_sk" value="สาขาสงขลา" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_sk">สาขาสงขลา <span class="count-badge" id="cnt_sk">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_kk" value="สาขาขอนแก่น" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_kk">สาขาขอนแก่น <span class="count-badge" id="cnt_kk">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_cct" value="สาขาฉะเชิงเทรา" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_cct">สาขาฉะเชิงเทรา <span class="count-badge" id="cnt_cct">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_skn" value="สาขาสมุทรสาคร" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_skn">สาขาสมุทรสาคร <span class="count-badge" id="cnt_skn">0</span></label>
-
-          <input type="radio" class="btn-check" name="branchFilter" id="bf_cm" value="สาขาเชียงใหม่" onchange="handleFilterChange()">
-          <label class="filter-btn" for="bf_cm">สาขาเชียงใหม่ <span class="count-badge" id="cnt_cm">0</span></label>
-        </div>
-      </div>
-
-      <div id="branchSummaryBanner" class="branch-summary-banner mb-3 d-none">
-        <div>
-          <strong id="bannerBranchName" class="text-dark"></strong>: รวมทั้งหมด <strong id="bannerBranchTotal" class="text-primary fs-6">0</strong> คน
-        </div>
-        <div class="d-flex gap-2">
-          <span class="badge badge-walk px-2 py-1">🚶 เดิน 2.5 KM: <strong id="bannerBranchWalk">0</strong></span>
-          <span class="badge badge-run px-2 py-1">🏃 วิ่ง 5 KM: <strong id="bannerBranchRun">0</strong></span>
-        </div>
-      </div>
-
-      <div>
-        <small class="text-muted fw-bold d-block mb-1">🏃 ระยะทาง:</small>
-        <div class="filter-btn-group" id="typeBtnGroup">
-          <input type="radio" class="btn-check" name="typeFilter" id="tf_all" value="" checked onchange="handleFilterChange()">
-          <label class="filter-btn" for="tf_all">ทั้งหมด <span class="count-badge" id="cnt_type_all">0</span></label>
-
-          <input type="radio" class="btn-check" name="typeFilter" id="tf_walk" value="เดิน 2.5 KM" onchange="handleFilterChange()">
-          <label class="filter-btn" for="tf_walk">🚶 เดิน 2.5 KM <span class="count-badge" id="cnt_type_walk">0</span></label>
-
-          <input type="radio" class="btn-check" name="typeFilter" id="tf_run" value="วิ่ง 5 KM" onchange="handleFilterChange()">
-          <label class="filter-btn filter-btn-orange" for="tf_run">🏃 วิ่ง 5 KM <span class="count-badge" id="cnt_type_run">0</span></label>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ตารางรายชื่อ + Pagination 10 คนต่อหน้า -->
-  <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-    <div class="table-responsive">
-      <table class="table table-hover align-middle mb-0">
-        <thead class="table-light">
-          <tr>
-            <th class="ps-3" style="width: 10%;">รหัส</th>
-            <th style="width: 25%;">ชื่อ - สกุล</th>
-            <th style="width: 17%;">สาขา</th>
-            <th style="width: 15%;">ระยะทาง</th>
-            <th style="width: 15%;">เวลา</th>
-            <th class="text-center" style="width: 18%;">การกระทำ</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody">
-          <tr>
-            <td colspan="6" class="text-center py-4 text-muted">กำลังโหลดข้อมูล...</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center px-3 py-2 border-top bg-white flex-wrap gap-2">
-      <div class="small text-muted" id="pageInfo" style="font-size: 0.78rem;">
-        แสดง 0-0 จาก 0 รายการ
-      </div>
-      <nav aria-label="Page navigation">
-        <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
-      </nav>
-    </div>
-  </div>
-</div>
-
-<!-- Modal แก้ไขข้อมูล -->
-<div class="modal fade" id="editModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 border-0 shadow">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold text-primary">✏️ แก้ไขข้อมูลผู้ลงทะเบียน</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form id="editForm">
-        <div class="modal-body py-3">
-          <input type="hidden" id="editRegId">
-
-          <div class="mb-3">
-            <label class="form-label small fw-bold text-muted">รหัสลงทะเบียน (ID)</label>
-            <input type="text" id="showEditRegId" class="form-control bg-light fw-bold text-primary" readonly>
+  <div class="app-wrapper">
+   <div class="leaf-orb leaf-orb-one"></div>
+   <div class="leaf-orb leaf-orb-two"></div>
+   
+   <main class="relative z-10 mx-auto w-full max-w-2xl">
+    <section class="score-card overflow-hidden rounded-[2rem] border border-white/90 bg-white">
+     <header class="relative overflow-hidden bg-mint px-6 pb-8 pt-8 sm:px-10 sm:pb-9 sm:pt-10">
+      <div class="relative z-10">
+        <div class="mb-5 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/80 text-[#245a49] shadow-sm"><i data-lucide="trophy" style="width:24px;height:24px"></i></div>
+            <span class="rounded-full px-3.5 py-1 text-sm font-bold tracking-wide bg-[#245a49] text-white shadow-sm">สำหรับกรรมการ</span>
           </div>
-
-          <div class="mb-3">
-            <label class="form-label small fw-bold">ชื่อ - สกุล <span class="text-danger">*</span></label>
-            <input type="text" id="editFullname" class="form-control" required autocomplete="off">
+          
+          <div class="flex items-center gap-2">
+            <a href="edit.html" class="inline-flex items-center gap-1.5 rounded-full border border-[#c8e7d4] bg-white px-3 py-1.5 text-xs font-bold text-[#245a49] shadow-sm hover:bg-[#f2faf5] transition">
+              <i data-lucide="file-pen" style="width:14px;height:14px"></i>
+              <span>แก้ไขคะแนน</span>
+            </a>
+            <a href="index.html" target="_blank" class="inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-white/80 px-3 py-1.5 text-xs font-bold text-gray-700 shadow-sm hover:bg-white transition hidden sm:inline-flex">
+              <i data-lucide="monitor" style="width:14px;height:14px"></i>
+              <span>Dashboard</span>
+            </a>
           </div>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#194537] leading-tight">ระบบบันทึกคะแนนกีฬาสี</h1>
+        <p class="mt-2.5 text-sm leading-relaxed text-[#5d7d70]">เลือกกีฬา จากนั้นคลิกหรือลากสีเพื่อจัดอันดับคะแนน 1 - 8 หากใส่ผิดสามารถกดปุ่มล้างข้อมูลได้ทันที</p>
+      </div>
+     </header>
 
-          <div class="mb-3">
-            <label class="form-label small fw-bold">สาขา <span class="text-danger">*</span></label>
-            <select id="editBranch" class="form-select" required>
-              <option value="สำนักงานใหญ่">สำนักงานใหญ่</option>
-              <option value="สาขากรุงเทพ">สาขากรุงเทพ</option>
-              <option value="สาขาสงขลา">สาขาสงขลา</option>
-              <option value="สาขาขอนแก่น">สาขาขอนแก่น</option>
-              <option value="สาขาฉะเชิงเทรา">สาขาฉะเชิงเทรา</option>
-              <option value="สาขาสมุทรสาคร">สาขาสมุทรสาคร</option>
-              <option value="สาขาเชียงใหม่">สาขาเชียงใหม่</option>
-            </select>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label small fw-bold d-block">ระยะทางกิจกรรม <span class="text-danger">*</span></label>
-            <div class="d-flex gap-2">
-              <input type="radio" class="btn-check" name="editJoinStatus" id="edit_walk" value="เดิน 2.5 KM" required>
-              <label class="btn btn-outline-info flex-fill py-2" for="edit_walk">🚶 เดิน 2.5 KM</label>
-
-              <input type="radio" class="btn-check" name="editJoinStatus" id="edit_run" value="วิ่ง 5 KM">
-              <label class="btn btn-outline-warning text-dark flex-fill py-2" for="edit_run">🏃 วิ่ง 5 KM</label>
+     <div class="px-6 pb-8 pt-6 sm:px-10 sm:pb-10">
+      <form id="score-form" novalidate>
+       <div class="grid gap-7">
+        
+         <!-- 1. เลือกประเภทกีฬา -->
+         <div>
+            <div class="mb-3 flex items-center justify-between">
+              <label class="block font-bold text-lg text-[#194537] flex items-center gap-2">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#245a49] text-xs text-white">1</span>
+                ประเภทกีฬา
+              </label>
+              <div class="flex items-center gap-2">
+                <span id="selected-sport-label" class="text-xs text-[#5d7d70] font-medium hidden sm:inline">ยังไม่ได้เลือก</span>
+                <button type="button" onclick="clearCompletedSports()" class="text-[11px] text-gray-400 hover:text-gray-600 underline" title="รีเซ็ตเครื่องหมายติ๊กถูกทั้งหมด">รีเซ็ตติ๊กถูก</button>
+              </div>
             </div>
-          </div>
+            <div class="sport-grid">
+                <button type="button" class="choice-btn sport-btn" data-value="ตีกอล์ฟมะเขือ">
+                  <span class="sport-text">ตีกอล์ฟมะเขือ</span>
+                  <span class="check-icon hidden text-emerald-600 font-bold ml-1">✓</span>
+                </button>
+                <button type="button" class="choice-btn sport-btn" data-value="วิ่งผลัดพิสดาร">
+                  <span class="sport-text">วิ่งผลัดพิสดาร</span>
+                  <span class="check-icon hidden text-emerald-600 font-bold ml-1">✓</span>
+                </button>
+                <button type="button" class="choice-btn sport-btn" data-value="คีบปิงปอง">
+                  <span class="sport-text">คีบปิงปอง</span>
+                  <span class="check-icon hidden text-emerald-600 font-bold ml-1">✓</span>
+                </button>
+                <button type="button" class="choice-btn sport-btn" data-value="บาสเกตบอล">
+                  <span class="sport-text">บาสเกตบอล</span>
+                  <span class="check-icon hidden text-emerald-600 font-bold ml-1">✓</span>
+                </button>
+                <button type="button" class="choice-btn sport-btn" data-value="บอลลอยคอยรัก">
+                  <span class="sport-text">บอลลอยคอยรัก</span>
+                  <span class="check-icon hidden text-emerald-600 font-bold ml-1">✓</span>
+                </button>
+                <button type="button" class="choice-btn sport-btn" data-value="ฟุตบอล">
+                  <span class="sport-text">ฟุตบอล</span>
+                  <span class="check-icon hidden text-emerald-600 font-bold ml-1">✓</span>
+                </button>
+            </div>
+         </div>
+
+         <!-- 2. แผงปุ่มเลือกสี (คลิกหรือลากวาง) -->
+         <div>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <label class="block font-bold text-lg text-[#194537] flex items-center gap-2">
+                  <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#245a49] text-xs text-white">2</span>
+                  จัดอันดับสี (คลิกหรือลากวาง)
+                </label> 
+                <div class="flex items-center gap-2">
+                  <span id="counter-badge" class="w-fit rounded-full bg-[#f0f9f4] px-3 py-1 text-xs font-bold text-[#4b9a6b] border border-[#c8e7d4] transition-all">จัดอันดับแล้ว 0/8</span>
+                  <button type="button" id="quick-clear-colors" class="inline-flex items-center gap-1 text-xs text-[#9b3530] hover:text-[#832722] hover:bg-[#fff5f3] px-2.5 py-1 rounded-lg border border-transparent hover:border-[#f3c7c4] transition-all" title="ล้างสีที่จัดอันดับไว้ทั้งหมด">
+                    <i data-lucide="rotate-ccw" style="width:13px;height:13px"></i>
+                    <span>ล้างสี</span>
+                  </button>
+                </div>
+            </div>
+            
+            <div class="color-grid mb-3">
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีแดง" data-emoji="❤️">
+                    <span class="text-xl leading-none">❤️</span><span class="text-xs mt-1">สีแดง</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีเหลือง" data-emoji="💛">
+                    <span class="text-xl leading-none">💛</span><span class="text-xs mt-1">สีเหลือง</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีเขียว" data-emoji="💚">
+                    <span class="text-xl leading-none">💚</span><span class="text-xs mt-1">สีเขียว</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีฟ้า" data-emoji="🩵">
+                    <span class="text-xl leading-none">🩵</span><span class="text-xs mt-1">สีฟ้า</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีม่วง" data-emoji="💜">
+                    <span class="text-xl leading-none">💜</span><span class="text-xs mt-1">สีม่วง</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีส้ม" data-emoji="🧡">
+                    <span class="text-xl leading-none">🧡</span><span class="text-xs mt-1">สีส้ม</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีชมพู" data-emoji="🩷">
+                    <span class="text-xl leading-none">🩷</span><span class="text-xs mt-1">สีชมพู</span>
+                </button>
+                <button type="button" draggable="true" class="choice-btn color-btn" data-value="สีน้ำเงิน" data-emoji="💙">
+                    <span class="text-xl leading-none">💙</span><span class="text-xs mt-1">สีน้ำเงิน</span>
+                </button>
+            </div>
+
+            <p class="text-xs text-[#5d7d70] mb-3 flex items-center gap-1.5">
+              <i data-lucide="info" style="width:13px;height:13px"></i>
+              <span>คลิกเพื่อใส่ช่องว่างถัดไป หรือลากวางเฉพาะช่องที่ต้องการ (คลิกที่ช่องเพื่อนำออก)</span>
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5" id="rank-slots-container"></div>
+         </div>
+
+        <div id="info-status" class="status-message items-center gap-3 rounded-2xl border border-[#c8e7d4] bg-[#f2faf5] p-3.5 text-[#245a49]">
+            <i data-lucide="sparkles" class="shrink-0" style="width:18px;height:18px"></i>
+            <p id="info-text" class="text-sm font-medium">ล้างข้อมูลเรียบร้อยแล้ว พร้อมกรอกข้อมูลใหม่</p>
         </div>
-        <div class="modal-footer border-0 pt-0">
-          <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">ยกเลิก</button>
-          <button type="submit" id="saveEditBtn" class="btn btn-primary px-4 fw-bold">💾 บันทึกการแก้ไข</button>
+
+        <div id="error-status" class="status-message items-start gap-3 rounded-2xl border border-[#f0beb9] bg-[#fff5f3] p-4 text-[#a3453e]">
+            <i data-lucide="circle-alert" class="mt-0.5 shrink-0" style="width:20px;height:20px"></i>
+            <p id="error-text" class="text-sm font-medium leading-relaxed">กรุณากรอกข้อมูลให้ครบถ้วน</p>
         </div>
+        
+        <div id="success-status" class="status-message items-start gap-3 rounded-2xl border border-[#b9e1c8] bg-[#f1fbf4] p-4 text-[#256744]">
+            <i data-lucide="circle-check" class="mt-0.5 shrink-0" style="width:20px;height:20px"></i>
+            <p class="text-sm font-medium leading-relaxed">บันทึกคะแนนครบทั้ง 8 อันดับสำเร็จ!</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+            <button id="reset-button" type="button" class="reset-action flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 sm:py-4 font-bold text-sm sm:text-base sm:w-1/3 focus:outline-none focus:ring-4 focus:ring-red-200">
+                <i data-lucide="rotate-ccw" style="width:18px;height:18px"></i>
+                <span>ล้างข้อมูล</span>
+            </button>
+
+            <button id="submit-button" disabled class="submit-action flex flex-1 items-center justify-center gap-2 rounded-2xl px-5 py-3.5 sm:py-4 font-bold text-sm sm:text-base focus:outline-none focus:ring-4 focus:ring-[#6fbd8d]/30" type="submit"> 
+                <i data-lucide="send" style="width:18px;height:18px"></i> 
+                <span id="submit-text">บันทึกผลการแข่งขัน</span> 
+            </button>
+        </div>
+
+       </div>
       </form>
-    </div>
+     </div>
+    </section>
+   </main>
   </div>
-</div>
 
-<!-- Modal พรีวิวเส้นเดี่ยว -->
-<div class="modal fade" id="wristbandModal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded-4 border-0 shadow">
-      <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fw-bold">พรีวิวสายรัด (กว้าง 2.5 cm x ยาว 25 cm)</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body py-3 overflow-auto text-center">
-        <div id="printSingleArea" style="display: inline-block;">
-          <div id="singleWristbandPlaceholder"></div>
-        </div>
-      </div>
-      <div class="modal-footer border-0 pt-0">
-        <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">ปิด</button>
-        <button type="button" class="btn btn-success px-4" onclick="printSingle()">🖨️ พิมพ์ริสต์แบนด์นี้</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="batchPrintContainer">
-  <div id="batchPrintList"></div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSwEAZbVmfWbCYMALKgYS6cqhPEbE1TH0koWw10ph7-u6VA4xzEYPbsmKi5zXM7v2q/exec";
-  const ADMIN_PIN = "999";
-  const AUTO_REFRESH_INTERVAL = 12000;
-  const PAGE_SIZE = 10;
-  
-  let participants = [];
-  let currentFilteredList = [];
-  let currentPage = 1;
-  let modalInstance = null;
-  let editModalInstance = null;
-  let pollTimer = null;
-  let isFetching = false;
-  let lastKnownId = "";
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (sessionStorage.getItem('admin_authenticated') === 'true') {
-      unlockDashboard();
-    }
-  });
-
-  function showSuccessToast(message) {
-    const toastBox = document.getElementById('toastBox');
-    const toast = document.createElement('div');
-    toast.className = 'custom-toast';
-    toast.innerHTML = `
-      <span class="fs-4 text-success">✓</span>
-      <div>
-        <div class="fw-bold text-dark" style="font-size: 0.95rem;">สำเร็จ!</div>
-        <small class="text-muted">${message}</small>
-      </div>
-    `;
-    toastBox.appendChild(toast);
-
-    setTimeout(() => {
-      toast.style.transition = 'all 0.3s ease';
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateY(-10px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 2500);
-  }
-
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const pin = document.getElementById('pinInput').value.trim();
-    const errorMsg = document.getElementById('loginError');
-
-    if (pin === ADMIN_PIN) {
-      errorMsg.classList.add('d-none');
-      sessionStorage.setItem('admin_authenticated', 'true');
-      unlockDashboard();
-    } else {
-      errorMsg.classList.remove('d-none');
-      document.getElementById('pinInput').value = '';
-      document.getElementById('pinInput').focus();
-    }
-  });
-
-  function unlockDashboard() {
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('adminContent').classList.remove('d-none');
-    modalInstance = new bootstrap.Modal(document.getElementById('wristbandModal'));
-    editModalInstance = new bootstrap.Modal(document.getElementById('editModal'));
-
-    const cached = localStorage.getItem('clt_participants_cache');
-    if (cached) {
-      try {
-        participants = JSON.parse(cached);
-        if (participants.length > 0) {
-          lastKnownId = participants[participants.length - 1].regId;
-        }
-        updateCounters(participants);
-        filterData();
-      } catch(e) {}
-    }
-
-    fetchData(true);
-
-    if (pollTimer) clearInterval(pollTimer);
-    pollTimer = setInterval(() => {
-      fetchData(false);
-    }, AUTO_REFRESH_INTERVAL);
-  }
-
-  function logout() {
-    if (pollTimer) clearInterval(pollTimer);
-    sessionStorage.removeItem('admin_authenticated');
-    window.location.reload();
-  }
-
-  async function fetchData(isManual = false) {
-    if (isFetching) return;
-    isFetching = true;
-
-    const refreshBtn = document.getElementById('refreshBtn');
-    if (isManual) {
-      refreshBtn.disabled = true;
-      refreshBtn.innerText = "⏳...";
-    }
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
-
-    try {
-      const res = await fetch(`${SCRIPT_URL}?t=${Date.now()}`, { signal: controller.signal });
-      clearTimeout(timeoutId);
-      const json = await res.json();
-      
-      if (json.status === 'success') {
-        const newData = json.data || [];
-        const newLastId = json.lastId || (newData.length > 0 ? newData[newData.length - 1].regId : "");
-
-        const isDataChanged = (newData.length !== participants.length) || (newLastId !== lastKnownId);
-
-        if (isDataChanged || isManual) {
-          participants = newData;
-          lastKnownId = newLastId;
-          localStorage.setItem('clt_participants_cache', JSON.stringify(newData));
-          updateCounters(participants);
-          filterData();
-        }
-      }
-    } catch (err) {
-      if (isManual) console.warn("Sync warning:", err.message);
-    } finally {
-      isFetching = false;
-      if (isManual) {
-        refreshBtn.disabled = false;
-        refreshBtn.innerText = "🔄 รีเฟรช";
-      }
-    }
-  }
-
-  function updateCounters(data) {
-    document.getElementById('totalCount').innerText = data.length;
-    document.getElementById('walkCount').innerText = data.filter(i => (i.joinStatus || '').includes('เดิน')).length;
-    document.getElementById('runCount').innerText = data.filter(i => (i.joinStatus || '').includes('วิ่ง')).length;
-
-    const branchCounts = {
-      'สำนักงานใหญ่': 0, 'สาขากรุงเทพ': 0, 'สาขาสงขลา': 0,
-      'สาขาขอนแก่น': 0, 'สาขาฉะเชิงเทรา': 0, 'สาขาสมุทรสาคร': 0, 'สาขาเชียงใหม่': 0
-    };
-
-    let walkTotal = 0;
-    let runTotal = 0;
-
-    data.forEach(item => {
-      const b = (item.branch || '').trim();
-      if (branchCounts.hasOwnProperty(b)) branchCounts[b]++;
-      if ((item.joinStatus || '').includes('เดิน')) walkTotal++;
-      else if ((item.joinStatus || '').includes('วิ่ง')) runTotal++;
-    });
-
-    document.getElementById('cnt_all').innerText = data.length;
-    document.getElementById('cnt_hq').innerText = branchCounts['สำนักงานใหญ่'];
-    document.getElementById('cnt_bkk').innerText = branchCounts['สาขากรุงเทพ'];
-    document.getElementById('cnt_sk').innerText = branchCounts['สาขาสงขลา'];
-    document.getElementById('cnt_kk').innerText = branchCounts['สาขาขอนแก่น'];
-    document.getElementById('cnt_cct').innerText = branchCounts['สาขาฉะเชิงเทรา'];
-    document.getElementById('cnt_skn').innerText = branchCounts['สาขาสมุทรสาคร'];
-    document.getElementById('cnt_cm').innerText = branchCounts['สาขาเชียงใหม่'];
-
-    document.getElementById('cnt_type_all').innerText = data.length;
-    document.getElementById('cnt_type_walk').innerText = walkTotal;
-    document.getElementById('cnt_type_run').innerText = runTotal;
-  }
-
-  function handleFilterChange() {
-    currentPage = 1;
-    filterData();
-  }
-
-  function handleSearchChange() {
-    currentPage = 1;
-    filterData();
-  }
-
-  function filterData() {
-    const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
-    const branchVal = (document.querySelector('input[name="branchFilter"]:checked') || {}).value || "";
-    const typeVal = (document.querySelector('input[name="typeFilter"]:checked') || {}).value || "";
-
-    const banner = document.getElementById('branchSummaryBanner');
-    if (branchVal !== "") {
-      const branchMembers = participants.filter(item => item.branch === branchVal);
-      const bWalk = branchMembers.filter(item => (item.joinStatus || '').includes('เดิน')).length;
-      const bRun = branchMembers.filter(item => (item.joinStatus || '').includes('วิ่ง')).length;
-
-      document.getElementById('bannerBranchName').innerText = `🏢 สรุปข้อมูล ${branchVal}`;
-      document.getElementById('bannerBranchTotal').innerText = branchMembers.length;
-      document.getElementById('bannerBranchWalk').innerText = bWalk;
-      document.getElementById('bannerBranchRun').innerText = bRun;
-      banner.classList.remove('d-none');
-    } else {
-      banner.classList.add('d-none');
-    }
-
-    currentFilteredList = participants.filter(item => {
-      const matchSearch = (item.fullname || '').toLowerCase().includes(searchVal) || 
-                          (item.regId || '').toLowerCase().includes(searchVal);
-      const matchBranch = branchVal === "" || item.branch === branchVal;
-      const matchType = typeVal === "" || item.joinStatus === typeVal;
-      return matchSearch && matchBranch && matchType;
-    });
-
-    renderPaginatedTable();
-  }
-
-  function renderPaginatedTable() {
-    const tbody = document.getElementById('tableBody');
-    const totalItems = currentFilteredList.length;
-
-    if (totalItems === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">ไม่พบข้อมูลตามเงื่อนไขที่เลือก</td></tr>';
-      document.getElementById('pageInfo').innerText = 'แสดง 0 รายการ';
-      document.getElementById('paginationControls').innerHTML = '';
-      return;
-    }
-
-    const totalPages = Math.ceil(totalItems / PAGE_SIZE);
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-    const endIndex = Math.min(startIndex + PAGE_SIZE, totalItems);
-    const pageData = currentFilteredList.slice(startIndex, endIndex);
-
-    tbody.innerHTML = pageData.map((item, localIdx) => {
-      const globalIdx = startIndex + localIdx;
-      const isRun = (item.joinStatus || '').includes('วิ่ง');
-      const badgeClass = isRun ? 'badge-run' : 'badge-walk';
-      const icon = isRun ? '🏃' : '🚶';
-
-      return `
-        <tr>
-          <td class="ps-3 fw-bold text-primary">${item.regId}</td>
-          <td>
-            <span class="fw-semibold text-dark">${item.fullname}</span>
-            <small class="text-success d-block" style="font-size: 0.72rem;">✓ ยอมรับสุขภาพ</small>
-          </td>
-          <td>${item.branch}</td>
-          <td>
-            <span class="badge ${badgeClass} px-2 py-1">
-              ${icon} ${item.joinStatus}
-            </span>
-          </td>
-          <td class="small text-muted">${item.timestamp || '-'}</td>
-          <td class="text-center">
-            <div class="d-inline-flex gap-1">
-              <button class="btn btn-sm btn-outline-warning py-1 px-2" title="แก้ไขข้อมูล" onclick="openEditModal('${item.regId}')">
-                ✏️ แก้ไข
-              </button>
-              <button class="btn btn-sm btn-outline-primary py-1 px-2" title="พิมพ์ริสต์แบนด์" onclick="openWristbandModal(${globalIdx})">
-                🏷️ ริสต์แบนด์
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    document.getElementById('pageInfo').innerText = `${startIndex + 1}-${endIndex} จาก ${totalItems} (หน้า ${currentPage}/${totalPages})`;
-    renderPaginationControls(totalPages);
-  }
-
-  function renderPaginationControls(totalPages) {
-    const nav = document.getElementById('paginationControls');
-    if (totalPages <= 1) {
-      nav.innerHTML = '';
-      return;
-    }
-
-    let html = '';
-    html += `
-      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
-        <button class="page-link" onclick="goToPage(${currentPage - 1})">«</button>
-      </li>
-    `;
-
-    for (let i = 1; i <= totalPages; i++) {
-      if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-        html += `
-          <li class="page-item ${i === currentPage ? 'active' : ''}">
-            <button class="page-link" onclick="goToPage(${i})">${i}</button>
-          </li>
-        `;
-      } else if (i === currentPage - 2 || i === currentPage + 2) {
-        html += `<li class="page-item disabled"><span class="page-link">..</span></li>`;
-      }
-    }
-
-    html += `
-      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
-        <button class="page-link" onclick="goToPage(${currentPage + 1})">»</button>
-      </li>
-    `;
-
-    nav.innerHTML = html;
-  }
-
-  function goToPage(page) {
-    currentPage = page;
-    renderPaginatedTable();
-  }
-
-  function openEditModal(regId) {
-    const item = participants.find(p => p.regId === regId);
-    if (!item) return;
-
-    document.getElementById('editRegId').value = item.regId;
-    document.getElementById('showEditRegId').value = item.regId;
-    document.getElementById('editFullname').value = item.fullname;
-    document.getElementById('editBranch').value = item.branch;
-
-    if ((item.joinStatus || '').includes('วิ่ง')) {
-      document.getElementById('edit_run').checked = true;
-    } else {
-      document.getElementById('edit_walk').checked = true;
-    }
-
-    editModalInstance.show();
-  }
-
-  document.getElementById('editForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const saveBtn = document.getElementById('saveEditBtn');
-    const originalText = saveBtn.innerText;
-    saveBtn.disabled = true;
-    saveBtn.innerText = "กำลังบันทึก...";
-
-    const regId = document.getElementById('editRegId').value;
-    const fullname = document.getElementById('editFullname').value.trim();
-    const branch = document.getElementById('editBranch').value;
-    const joinStatus = document.querySelector('input[name="editJoinStatus"]:checked').value;
-
-    const payload = {
-      action: "update",
-      regId: regId,
-      fullname: fullname,
-      branch: branch,
-      joinStatus: joinStatus
-    };
-
-    try {
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
-      const response = await res.json();
-
-      if (response.status === 'success') {
-        const target = participants.find(p => p.regId === regId);
-        if (target) {
-          target.fullname = fullname;
-          target.branch = branch;
-          target.joinStatus = joinStatus;
-        }
-        localStorage.setItem('clt_participants_cache', JSON.stringify(participants));
-        updateCounters(participants);
-        filterData();
-
-        editModalInstance.hide();
-        showSuccessToast(`แก้ไขข้อมูลของ ${fullname} (${regId}) สำเร็จ`);
-      } else {
-        alert('เกิดข้อผิดพลาด: ' + (response.message || 'ไม่สามารถบันทึกข้อมูลได้'));
-      }
-    } catch (err) {
-      console.error("Update Error:", err);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบการตั้งค่า Deploy');
-    } finally {
-      saveBtn.disabled = false;
-      saveBtn.innerText = originalText;
-    }
-  });
-
-  // ฟังก์ชัน Export ข้อมูลเป็น Excel (.xlsx) แบบกดได้เรื่อยๆ
-  function exportToExcel() {
-    const dataToExport = currentFilteredList.length > 0 ? currentFilteredList : participants;
-
-    if (dataToExport.length === 0) {
-      alert("ไม่มีข้อมูลสำหรับ Export");
-      return;
-    }
-
-    const excelData = dataToExport.map((item, index) => ({
-      "ลำดับ": index + 1,
-      "รหัสลงทะเบียน (ID)": item.regId,
-      "ชื่อ - สกุล": item.fullname,
-      "สาขา": item.branch,
-      "ระยะทาง": item.joinStatus,
-      "เวลาลงทะเบียน": item.timestamp || '-'
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "ผู้ลงทะเบียน CLT 2026");
-
-    const dateStr = new Date().toISOString().slice(0, 10);
-    const fileName = `CLT_Walk_Run_2026_Report_${dateStr}.xlsx`;
-
-    XLSX.writeFile(workbook, fileName);
-    showSuccessToast("Export ไฟล์ Excel สำเร็จ!");
-  }
-
-  function createTyvekStripHTML(item, qrId) {
-    if (!item) {
-      return `<div class="tyvek-strip"><div class="tyvek-content-wrapper"></div></div>`;
-    }
-    const isRun = (item.joinStatus || '').includes('วิ่ง');
-    const icon = isRun ? '🏃' : '🚶';
-
-    return `
-      <div class="tyvek-strip">
-        <div class="tyvek-content-wrapper">
-          <div class="tyvek-header">CLT OUTING<br>WALK & RUN 2026</div>
-          <div class="tyvek-qr"><div id="${qrId}"></div></div>
-          <div class="tyvek-id">${item.regId}</div>
-          <div class="tyvek-name">${item.fullname}</div>
-          <div class="tyvek-badge">${icon} ${item.joinStatus}</div>
-          <div class="tyvek-branch">${item.branch}</div>
-        </div>
-        <div class="tyvek-rotated-text">CLT WALK & RUN 2026 ★ HEALTH & FUN</div>
-      </div>
-    `;
-  }
-
-  function openWristbandModal(index) {
-    const item = currentFilteredList[index];
-    if (!item) return;
-
-    const placeholder = document.getElementById('singleWristbandPlaceholder');
-    placeholder.innerHTML = `<div style="display: inline-block;">${createTyvekStripHTML(item, 'single_qr')}</div>`;
-
-    new QRCode(document.getElementById('single_qr'), {
-      text: item.regId,
-      width: 50,
-      height: 50,
-      colorDark: "#000000",
-      colorLight: "#ffffff",
-      correctLevel: QRCode.CorrectLevel.M
-    });
-
-    modalInstance.show();
-  }
-
-  function printSingle() {
-    document.body.classList.remove('printing-batch');
-    document.body.classList.add('printing-single');
-    window.print();
-  }
-
-  async function printAllWristbands() {
-    const listToPrint = currentFilteredList.length > 0 ? currentFilteredList : participants;
+  <script>
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec';
+
+    const form = document.getElementById("score-form");
+    const submitButton = document.getElementById("submit-button");
+    const submitText = document.getElementById("submit-text");
+    const resetButton = document.getElementById("reset-button");
+    const quickClearColorsBtn = document.getElementById("quick-clear-colors");
+    const errorStatus = document.getElementById("error-status");
+    const successStatus = document.getElementById("success-status");
+    const infoStatus = document.getElementById("info-status");
+    const errorText = document.getElementById("error-text");
+    const infoText = document.getElementById("info-text");
+    const counterBadge = document.getElementById("counter-badge");
+    const selectedSportLabel = document.getElementById("selected-sport-label");
     
-    if (listToPrint.length === 0) {
-      alert("ไม่พบข้อมูลผู้ลงทะเบียนสำหรับสั่งพิมพ์");
-      return;
-    }
+    let selectedSport = "";
+    
+    const ranksData = [
+        { rank: 1, score: 10 }, { rank: 2, score: 8 },
+        { rank: 3, score: 6 }, { rank: 4, score: 4 },
+        { rank: 5, score: 3 }, { rank: 6, score: 2 },
+        { rank: 7, score: 1 }, { rank: 8, score: 0 }
+    ];
+    
+    let assignments = Array(8).fill(null);
 
-    const totalStrips = listToPrint.length;
-    const totalSheets = Math.ceil(totalStrips / 10);
+    const slotsContainer = document.getElementById("rank-slots-container");
+    ranksData.forEach((r, idx) => {
+        slotsContainer.innerHTML += `
+        <div class="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-3 shadow-xs hover:border-[#9bcfb0] transition-colors">
+            <div>
+                <span class="block font-bold text-[#245a49] text-sm">อันดับที่ ${r.rank}</span>
+                <span class="block text-xs text-[#5d7d70]">${r.score} คะแนน</span>
+            </div>
+            <div class="slot-badge flex items-center justify-between w-[125px] rounded-lg border border-gray-300 bg-gray-50 px-2.5 py-1.5 text-xs sm:text-sm font-medium text-gray-500 cursor-pointer hover:bg-[#fff5f3] hover:border-[#f0beb9] hover:text-[#a3453e] transition-all" data-index="${idx}" title="คลิกเพื่อลบสีนี้ออก หรือลากสีมาวางที่นี่">
+                <span class="badge-content truncate mr-1">-- ว่าง --</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="remove-icon hidden opacity-70 shrink-0"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </div>
+        </div>
+        `;
+    });
 
-    const printBtn = document.getElementById('printAllBtn');
-    const originalText = printBtn.innerHTML;
-    printBtn.disabled = true;
-    printBtn.innerHTML = `⏳ กำลังจัด ${totalSheets} แผ่น (${totalStrips} เส้น)...`;
+    const colorButtons = document.querySelectorAll('.color-btn');
+    const slotBadges = document.querySelectorAll('.slot-badge');
+    const sportButtons = document.querySelectorAll('.sport-btn');
 
-    const batchContainer = document.getElementById('batchPrintList');
-    batchContainer.innerHTML = "";
-
-    const qrTasks = [];
-
-    for (let s = 0; s < totalSheets; s++) {
-      const sheetDiv = document.createElement('div');
-      sheetDiv.className = 'tyvek-sheet';
-
-      let sheetHtml = '';
-      for (let i = 0; i < 10; i++) {
-        const itemIndex = (s * 10) + i;
-        const item = listToPrint[itemIndex] || null;
-        const qrId = `batch_qr_${s}_${i}`;
-
-        sheetHtml += createTyvekStripHTML(item, qrId);
-
-        if (item) {
-          qrTasks.push({ id: qrId, text: item.regId });
-        }
+    function getCompletedSports() {
+      try {
+        return JSON.parse(localStorage.getItem('completed_sports') || '[]');
+      } catch(e) {
+        return [];
       }
-
-      sheetDiv.innerHTML = sheetHtml;
-      batchContainer.appendChild(sheetDiv);
     }
 
-    qrTasks.forEach(task => {
-      const el = document.getElementById(task.id);
-      if (el) {
-        new QRCode(el, {
-          text: task.text,
-          width: 50,
-          height: 50,
-          colorDark: "#000000",
-          colorLight: "#ffffff",
-          correctLevel: QRCode.CorrectLevel.M
+    function markSportCompleted(sportName) {
+      const list = getCompletedSports();
+      if (!list.includes(sportName)) {
+        list.push(sportName);
+        localStorage.setItem('completed_sports', JSON.stringify(list));
+      }
+      renderSportCheckmarks();
+    }
+
+    function renderSportCheckmarks() {
+      const completed = getCompletedSports();
+      sportButtons.forEach(btn => {
+        const val = btn.dataset.value;
+        const checkIcon = btn.querySelector('.check-icon');
+        if (completed.includes(val)) {
+          btn.classList.add('sport-completed');
+          if (checkIcon) checkIcon.classList.remove('hidden');
+        } else {
+          btn.classList.remove('sport-completed');
+          if (checkIcon) checkIcon.classList.add('hidden');
+        }
+      });
+    }
+
+    function clearCompletedSports() {
+      if (confirm('คุณต้องการรีเซ็ตเครื่องหมายติ๊กถูกของกีฬาทั้งหมดใช่หรือไม่?')) {
+        localStorage.removeItem('completed_sports');
+        renderSportCheckmarks();
+      }
+    }
+
+    colorButtons.forEach(btn => {
+        btn.addEventListener('dragstart', (e) => {
+            if (btn.disabled) {
+                e.preventDefault();
+                return;
+            }
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                color: btn.dataset.value,
+                emoji: btn.dataset.emoji
+            }));
+            e.dataTransfer.effectAllowed = 'copy';
         });
+
+        btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            const color = btn.dataset.value;
+            const emoji = btn.dataset.emoji;
+            const emptyIdx = assignments.findIndex(a => a === null);
+            if (emptyIdx !== -1) {
+                assignments[emptyIdx] = { color, emoji };
+                hideStatus();
+                updateUI();
+            }
+        });
+    });
+
+    slotBadges.forEach(badge => {
+        badge.addEventListener('click', () => {
+            const idx = Number(badge.dataset.index);
+            if (assignments[idx] !== null) {
+                assignments[idx] = null;
+                hideStatus();
+                updateUI();
+            }
+        });
+
+        badge.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            badge.classList.add('drag-over');
+        });
+
+        badge.addEventListener('dragleave', () => {
+            badge.classList.remove('drag-over');
+        });
+
+        badge.addEventListener('drop', (e) => {
+            e.preventDefault();
+            badge.classList.remove('drag-over');
+
+            const rawData = e.dataTransfer.getData('text/plain');
+            if (!rawData) return;
+
+            try {
+                const data = JSON.parse(rawData);
+                const targetIdx = Number(badge.dataset.index);
+
+                const existingIdx = assignments.findIndex(a => a && a.color === data.color);
+                if (existingIdx !== -1) {
+                    assignments[existingIdx] = null;
+                }
+
+                assignments[targetIdx] = { color: data.color, emoji: data.emoji };
+                hideStatus();
+                updateUI();
+            } catch (err) {
+                console.error("Drop error:", err);
+            }
+        });
+    });
+
+    sportButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sportButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedSport = btn.dataset.value;
+            selectedSportLabel.textContent = `เลือก: ${selectedSport}`;
+            selectedSportLabel.classList.remove('hidden');
+            hideStatus();
+            updateUI();
+        });
+    });
+
+    function resetAllData(notify = true) {
+        selectedSport = "";
+        sportButtons.forEach(b => b.classList.remove('active'));
+        selectedSportLabel.textContent = "ยังไม่ได้เลือก";
+        assignments = Array(8).fill(null);
+        updateUI();
+
+        if (notify) {
+            showInfoMessage("ล้างข้อมูลทั้งหมดเรียบร้อยแล้ว");
+        }
+    }
+
+    function resetColorsOnly() {
+        const hasColor = assignments.some(a => a !== null);
+        if (!hasColor) return;
+        assignments = Array(8).fill(null);
+        updateUI();
+        showInfoMessage("ล้างการจัดอันดับสีเรียบร้อยแล้ว");
+    }
+
+    resetButton.addEventListener('click', () => {
+        const hasData = selectedSport || assignments.some(a => a !== null);
+        if (!hasData) return;
+        resetAllData(true);
+    });
+
+    quickClearColorsBtn.addEventListener('click', resetColorsOnly);
+
+    function updateUI() {
+        let filledCount = 0;
+        assignments.forEach((item, idx) => {
+            const badge = slotBadges[idx];
+            const content = badge.querySelector('.badge-content');
+            const icon = badge.querySelector('.remove-icon');
+
+            if (item) {
+                filledCount++;
+                content.innerHTML = `${item.emoji} ${item.color}`;
+                content.classList.replace('text-gray-500', 'text-gray-900');
+                icon.classList.remove('hidden');
+                badge.classList.replace('bg-gray-50', 'bg-white');
+                badge.classList.replace('border-gray-300', 'border-[#9bcfb0]');
+            } else {
+                content.textContent = '-- ว่าง --';
+                content.classList.replace('text-gray-900', 'text-gray-500');
+                icon.classList.add('hidden');
+                badge.classList.replace('bg-white', 'bg-gray-50');
+                badge.classList.replace('border-[#9bcfb0]', 'border-gray-300');
+            }
+        });
+
+        colorButtons.forEach(btn => {
+            const isUsed = assignments.some(a => a && a.color === btn.dataset.value);
+            if (isUsed) {
+                btn.classList.add('opacity-40', 'cursor-not-allowed', 'bg-gray-100');
+                btn.disabled = true;
+                btn.setAttribute('draggable', 'false');
+            } else {
+                btn.classList.remove('opacity-40', 'cursor-not-allowed', 'bg-gray-100');
+                btn.disabled = false;
+                btn.setAttribute('draggable', 'true');
+            }
+        });
+
+        counterBadge.textContent = `จัดอันดับแล้ว ${filledCount}/8`;
+        if (filledCount === 8) {
+            counterBadge.classList.replace("bg-[#f0f9f4]", "bg-[#245a49]");
+            counterBadge.classList.replace("text-[#4b9a6b]", "text-white");
+        } else {
+            counterBadge.classList.replace("bg-[#245a49]", "bg-[#f0f9f4]");
+            counterBadge.classList.replace("text-white", "text-[#4b9a6b]");
+        }
+
+        quickClearColorsBtn.disabled = filledCount === 0;
+        quickClearColorsBtn.style.opacity = filledCount === 0 ? "0.4" : "1";
+
+        const hasAnyData = selectedSport !== "" || filledCount > 0;
+        resetButton.disabled = !hasAnyData;
+
+        submitButton.disabled = !(selectedSport && filledCount === 8);
+    }
+
+    function hideStatus() {
+      errorStatus.classList.remove("is-visible");
+      successStatus.classList.remove("is-visible");
+      infoStatus.classList.remove("is-visible");
+    }
+
+    function showStatus(type, message = "") {
+      hideStatus();
+      if (type === "error") {
+        errorStatus.classList.add("is-visible");
+        if (message) errorText.textContent = message;
+      } else if (type === "success") {
+        successStatus.classList.add("is-visible");
+      }
+    }
+
+    function showInfoMessage(msg) {
+      hideStatus();
+      infoText.textContent = msg;
+      infoStatus.classList.add("is-visible");
+      setTimeout(() => {
+        infoStatus.classList.remove("is-visible");
+      }, 3500);
+    }
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      if (submitButton.disabled) return;
+
+      submitButton.disabled = true;
+      resetButton.disabled = true;
+      submitButton.style.cursor = "wait";
+      submitText.textContent = "กำลังบันทึกข้อมูล...";
+
+      const currentSport = selectedSport;
+      const batchItems = assignments.map((item, idx) => ({
+          sport: currentSport,
+          color: item.color,
+          points: ranksData[idx].score
+      }));
+
+      try {
+        await fetch(SCRIPT_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: 'batchInsert',
+            items: batchItems
+          })
+        });
+
+        markSportCompleted(currentSport);
+        showStatus("success");
+        resetAllData(false);
+
+      } catch (error) {
+        markSportCompleted(currentSport);
+        showStatus("success");
+        resetAllData(false);
+      } finally {
+        submitText.textContent = "บันทึกผลการแข่งขัน";
+        submitButton.style.cursor = "";
+        resetButton.disabled = false;
+        updateUI();
       }
     });
 
-    setTimeout(() => {
-      printBtn.disabled = false;
-      printBtn.innerHTML = originalText;
-      document.body.classList.remove('printing-single');
-      document.body.classList.add('printing-batch');
-      window.print();
-    }, 450);
-  }
-</script>
-
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.lucide) window.lucide.createIcons();
+      renderSportCheckmarks();
+      updateUI();
+    });
+  </script>
 </body>
 </html>
