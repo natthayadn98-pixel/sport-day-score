@@ -158,7 +158,7 @@
     .badge-run { background-color: #ffedd5; color: #c2410c; font-weight: 500; }
 
     /* ==========================================================================
-       สเปกแผ่นริสต์แบนด์ (นำเส้นประออกทั้งหมด)
+       สเปกแผ่นริสต์แบนด์
        ========================================================================== */
     .tyvek-sheet {
       width: 240mm;
@@ -228,7 +228,7 @@
       letter-spacing: -0.2px;
     }
 
-    /* ปรับชื่อ-นามสกุลให้อยู่บรรทัดเดียวกันเสมอ ห้ามตกบรรทัด */
+    /* บังคับชื่อ-นามสกุลให้อยู่บรรทัดเดียวกันเสมอ ห้ามตกบรรทัด */
     .tyvek-name {
       font-size: 5.2pt;
       font-weight: 700;
@@ -397,8 +397,8 @@
       <button onclick="exportToExcel()" class="btn btn-outline-success btn-sm px-3 py-2 shadow-sm fw-semibold">
         📊 Export Excel
       </button>
-      <button onclick="printAllWristbands()" id="printAllBtn" class="btn btn-success btn-sm px-3 py-2 shadow-sm fw-semibold flex-grow-1 flex-sm-grow-0">
-        🖨️ พิมพ์แผ่นริสต์แบนด์ (10 เส้น/แผ่น)
+      <button onclick="printAllWristbands()" id="printAllBtn" class="btn btn-success btn-sm px-3 py-2 shadow-sm fw-semibold">
+        🖨️ พิมพ์แผ่นริสต์แบนด์ (10 เส้น)
       </button>
       <button onclick="fetchData(true)" id="refreshBtn" class="btn btn-primary btn-sm px-3 py-2 shadow-sm">
         🔄 รีเฟรช
@@ -980,7 +980,7 @@
       }
     } catch (err) {
       console.error("Update Error:", err);
-      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบว่าได้ทำการ Deploy Apps Script เป็น "New version" และตั้งสิทธิ์เป็น "Anyone" แล้วหรือไม่');
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบการตั้งค่า Deploy');
     } finally {
       saveBtn.disabled = false;
       saveBtn.innerText = originalText;

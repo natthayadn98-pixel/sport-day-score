@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ลงทะเบียน - CLT OUTING WALK & RUN 2026</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Kanit', sans-serif;
+      background: linear-gradient(135deg, #e0f2fe, #f0fdf4);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 12px;
+    }
+    .card-box {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+      padding: 28px 20px;
+      max-width: 650px;
+      width: 100%;
+    }
+    
+    .branch-btn {
+      font-size: 0.92rem;
+      padding: 12px 6px;
+      border-radius: 12px !important;
+      transition: all 0.2s ease-in-out;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      text-align: center;
+      line-height: 1.25;
+    }
+    
+    .btn-check:checked + .btn-outline-primary {
+      background-color: #0284c7;
+      border-color: #0284c7;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3);
+      font-weight: 500;
+    }
+    
+    .date-badge {
+      background-color: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .calendar-icon {
+      width: 20px;
+      height: 20px;
+      vertical-align: -3px;
+      display: inline-block;
+    }
+
+    .health-terms-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 0.85rem;
+      color: #475569;
+      line-height: 1.6;
+    }
+    .activity-card {
+      border: 2px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+    .activity-card:hover {
+      border-color: #cbd5e1;
+      background-color: #f8fafc;
+    }
+    .btn-check:checked + .activity-card {
+      border-color: #0284c7;
+      background-color: #f0f9ff;
+      color: #0284c7;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+    }
+    
+    .schedule-table {
+      font-size: 0.85rem;
+      border-color: #cbd5e1;
+    }
+    .schedule-table th {
+      background-color: #bbf7d0;
+      color: #14532d;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+      padding: 10px 8px;
+    }
+    .schedule-table td {
+      vertical-align: middle;
+      color: #334155;
+      padding: 8px;
+    }
+    .col-time {
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    @media (max-width: 575.98px) {
+      .card-box {
+        padding: 24px 16px;
+      }
+      .branch-btn {
+        font-size: 0.88rem;
+        padding: 10px 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card-box">
+  <!-- แจ้งเตือนสถานะช่วงเวลาเปิด/ปิดรับสมัคร -->
+  <div id="statusAlert" class="alert text-center d-none mb-4" role="alert"></div>
+
+  <!-- แจ้งเตือนข้อมูลซ้ำ -->
+  <div id="duplicateAlert" class="alert alert-danger alert-dismissible fade show text-center d-none mb-4 shadow" role="alert" style="border-width: 2px;">
+    <div class="fs-1 mb-1">⚠️</div>
+    <h4 class="fw-bold mb-1">แจ้งเตือน: มีข้อมูลในระบบแล้ว!</h4>
+    <p class="fs-6 mb-2" id="duplicateMsg">คุณได้ทำการลงทะเบียนแล้วในระบบ ไม่อาจลงทะเบียนซ้ำได้</p>
+    <div class="small text-danger fw-semibold">(หากต้องการตรวจสอบข้อมูล กรุณาติดต่อผู้ประสานงานหน้างาน)</div>
+    <button type="button" class="btn-close" onclick="closeDuplicateAlert()"></button>
+  </div>
+
+  <!-- ฟอร์มลงทะเบียน -->
+  <div id="formSection">
+    <div class="text-center mb-4">
+      <h3 class="fw-bold text-primary mb-1">🏃 CLT OUTING WALK & RUN 2026 🏃</h3>
+      <p class="text-muted mb-2">แบบฟอร์มลงทะเบียนพนักงาน</p>
+      
+      <!-- ป้ายวันที่ -->
+      <div class="date-badge">
+        <svg class="calendar-icon me-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="4" width="20" height="18" rx="4" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+          <path d="M2 8C2 5.79086 3.79086 4 6 4H18C20.2091 4 22 5.79086 22 8V9H2V8Z" fill="#0284c7"/>
+          <line x1="7" y1="2" x2="7" y2="5" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+          <line x1="17" y1="2" x2="17" y2="5" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+          <text x="12" y="18" font-family="'Kanit', sans-serif" font-size="8.5" font-weight="700" fill="#0284c7" text-anchor="middle">28</text>
+        </svg>
+        เปิดรับลงทะเบียน: 18 ก.ย. 2569 - 2 ต.ค. 2569
+      </div>
+    </div>
+
+    <form id="regForm">
+      <!-- 1. ชื่อ - สกุล พร้อมข้อความคำแนะนำสีแดงเด่นชัด -->
+      <div class="mb-4">
+        <label for="fullname" class="form-label fw-bold">1. ชื่อ - นามสกุล <span class="text-danger">*</span></label>
+        <input type="text" class="form-control form-control-lg fs-6" id="fullname" placeholder="ระบุชื่อและนามสกุล (เช่น สมชาย ใจดี)" required autocomplete="off">
+        <div class="form-text text-danger fw-bold small mt-1">
+          * กรุณากรอกชื่อและนามสกุลให้ถูกต้อง (ต้องมีเว้นวรรคคั่นกลาง 1 ครั้ง ห้ามมีอักขระพิเศษหรือเว้นวรรคหน้า-หลัง)
+        </div>
+      </div>
+
+      <!-- 2. สาขา -->
+      <div class="mb-4">
+        <label class="form-label fw-bold d-block">2. สาขา <span class="text-danger">*</span></label>
+        
+        <!-- แถวที่ 1 -->
+        <div class="row g-2 mb-sm-2 mb-0">
+          <div class="col-6 col-sm-3">
+            <input type="radio" class="btn-check" name="branch" id="b1" value="สำนักงานใหญ่" required>
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b1">สำนักงานใหญ่</label>
+          </div>
+          <div class="col-6 col-sm-3">
+            <input type="radio" class="btn-check" name="branch" id="b2" value="สาขากรุงเทพ">
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b2">สาขากรุงเทพ</label>
+          </div>
+          <div class="col-6 col-sm-3">
+            <input type="radio" class="btn-check" name="branch" id="b3" value="สาขาสงขลา">
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b3">สาขาสงขลา</label>
+          </div>
+          <div class="col-6 col-sm-3">
+            <input type="radio" class="btn-check" name="branch" id="b4" value="สาขาขอนแก่น">
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b4">สาขาขอนแก่น</label>
+          </div>
+        </div>
+
+        <!-- แถวที่ 2 -->
+        <div class="row g-2 justify-content-center mt-sm-0 mt-2">
+          <div class="col-6 col-sm-4">
+            <input type="radio" class="btn-check" name="branch" id="b5" value="สาขาฉะเชิงเทรา">
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b5">สาขาฉะเชิงเทรา</label>
+          </div>
+          <div class="col-6 col-sm-4">
+            <input type="radio" class="btn-check" name="branch" id="b6" value="สาขาสมุทรสาคร">
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b6">สาขาสมุทรสาคร</label>
+          </div>
+          <div class="col-12 col-sm-4">
+            <input type="radio" class="btn-check" name="branch" id="b7" value="สาขาเชียงใหม่">
+            <label class="btn btn-outline-primary w-100 branch-btn" for="b7">สาขาเชียงใหม่</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. เข้าร่วมกิจกรรม -->
+      <div class="mb-4">
+        <label class="form-label fw-bold d-block">3. เข้าร่วมกิจกรรม <span class="text-danger">*</span></label>
+        <div class="row g-3">
+          <div class="col-6">
+            <input type="radio" class="btn-check" name="joinStatus" id="walk25" value="เดิน 2.5 KM" required>
+            <label class="d-block text-center activity-card h-100" for="walk25">
+              <span class="fs-4 d-block mb-1">🚶</span>
+              <span>เดิน 2.5 KM</span>
+            </label>
+          </div>
+          <div class="col-6">
+            <input type="radio" class="btn-check" name="joinStatus" id="run5" value="วิ่ง 5 KM">
+            <label class="d-block text-center activity-card h-100" for="run5">
+              <span class="fs-4 d-block mb-1">🏃</span>
+              <span>วิ่ง 5 KM</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. ข้อกำหนดและการรับรองด้านสุขภาพ -->
+      <div class="mb-4">
+        <label class="form-label fw-bold">4. ข้อกำหนดและการรับรองด้านสุขภาพ <span class="text-danger">*</span></label>
+        <div class="health-terms-box mb-2">
+          <strong>เงื่อนไขความพร้อมของร่างกาย:</strong><br>
+          ข้าพเจ้าขอรับรองว่ามีสุขภาพร่างกายที่แข็งแรงสมบูรณ์ พร้อมสำหรับการเข้าร่วมกิจกรรม และไม่มีภาวะหรืออาการเจ็บป่วยที่เป็นอันตรายต่อการออกกำลังกาย ทั้งนี้ ข้าพเจ้าจะดูแลความปลอดภัยของตนเองอย่างระมัดระวังตลอดการร่วมกิจกรรม
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" id="healthConsent" required>
+          <label class="form-check-label fw-bold text-dark" for="healthConsent">
+            ข้าพเจ้ายอมรับข้อกำหนดและยืนยันความพร้อมของสุขภาพ
+          </label>
+        </div>
+      </div>
+
+      <!-- กำหนดการกิจกรรม -->
+      <div class="mb-4">
+        <label class="form-label fw-bold d-flex align-items-center gap-2">
+          <svg class="calendar-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="4" width="20" height="18" rx="4" fill="#ffffff" stroke="#0284c7" stroke-width="2"/>
+            <path d="M2 8C2 5.79086 3.79086 4 6 4H18C20.2091 4 22 5.79086 22 8V9H2V8Z" fill="#0284c7"/>
+            <line x1="7" y1="2" x2="7" y2="5" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+            <line x1="17" y1="2" x2="17" y2="5" stroke="#0284c7" stroke-width="2" stroke-linecap="round"/>
+            <text x="12" y="18" font-family="'Kanit', sans-serif" font-size="8.5" font-weight="700" fill="#0284c7" text-anchor="middle">28</text>
+          </svg>
+          กำหนดการกิจกรรม
+        </label>
+        <div class="table-responsive">
+          <table class="table table-bordered schedule-table mb-0">
+            <thead>
+              <tr>
+                <th style="width: 25%;">เวลา</th>
+                <th style="width: 30%;">กิจกรรม</th>
+                <th style="width: 45%;">รายละเอียด</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center col-time">05:00 – 05:30 น.</td>
+                <td class="fw-semibold">ลงทะเบียน</td>
+                <td>รายงานตัว ณ สนามฟุตบอล รับ Wristband แบ่งสีตามประเภท</td>
+              </tr>
+              <tr>
+                <td class="text-center col-time">05:30 – 05:35 น.</td>
+                <td class="fw-semibold">พิธีเปิด & Warm-up</td>
+                <td>ประธานกล่าวเปิดงาน + นำยืดเหยียดร่างกาย และอธิบายข้อมูลเส้นทาง</td>
+              </tr>
+              <tr>
+                <td class="text-center col-time">05:35 น.</td>
+                <td class="fw-semibold">เข้าจุดปล่อยตัว</td>
+                <td>นักวิ่ง/เดิน เข้าประจำจุดปล่อยตัว ณ สนามฟุตบอล</td>
+              </tr>
+              <tr>
+                <td class="text-center col-time">05:40 น.</td>
+                <td class="fw-semibold text-danger">ปล่อยตัวระยะวิ่ง (5.0 กม.)</td>
+                <td>ปล่อยตัวกลุ่มวิ่ง</td>
+              </tr>
+              <tr>
+                <td class="text-center col-time">05:45 น.</td>
+                <td class="fw-semibold text-primary">ปล่อยตัวระยะเดิน (2.5 กม.)</td>
+                <td>ปล่อยตัวกลุ่มเดิน</td>
+              </tr>
+              <tr>
+                <td class="text-center col-time">05:40 – 06:45 น.</td>
+                <td class="fw-semibold">กิจกรรม WALK & RUN</td>
+                <td>
+                  มีจุดแจกน้ำดื่ม 2 จุด:<br>
+                  • <strong>จุดที่ 1:</strong> บริเวณ กม.ที่ 1.25 (ใช้ร่วมกัน)<br>
+                  • <strong>จุดที่ 2:</strong> บริเวณ กม.ที่ 2.5 (จุดกลับตัวระยะวิ่ง 5.0 กม.)
+                </td>
+              </tr>
+              <tr>
+                <td class="text-center col-time">06:45 – 07:00 น.</td>
+                <td class="fw-semibold">Cool-down & ถ่ายภาพรวม</td>
+                <td>นักกีฬากลับเข้าเส้นชัย ยืดเหยียด ถ่ายภาพหมู่ร่วมกัน และปิดกิจกรรม</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <button type="submit" id="submitBtn" class="btn btn-primary w-100 py-2 fs-5 shadow-sm">ลงทะเบียน</button>
+    </form>
+  </div>
+
+  <!-- แสดงผลเมื่อบันทึกข้อมูลครั้งแรกสำเร็จ (แสดง Register ID) -->
+  <div id="resultSection" style="display: none;" class="text-center py-4">
+    <div class="mb-3">
+      <span class="display-3 text-success">✓</span>
+    </div>
+    <h3 class="text-success fw-bold mb-2">ลงทะเบียนเรียบร้อยแล้ว</h3>
+    <p class="text-muted fs-6 mb-3">
+      ระบบได้บันทึกข้อมูลของคุณเรียบร้อยแล้ว กรุณาบันทึกหรือจดจำรหัสลงทะเบียนด้านล่างนี้
+    </p>
+
+    <!-- กล่องแสดง Register ID -->
+    <div class="p-3 bg-light rounded-4 border mx-auto mb-4" style="max-width: 320px;">
+      <small class="text-muted d-block mb-1">รหัสลงทะเบียนของคุณ</small>
+      <h2 id="showRegId" class="text-primary fw-bold mb-0" style="letter-spacing: 1px;"></h2>
+    </div>
+
+    <p class="small text-muted mb-4">
+      ติดต่อรับสายรัดข้อมือ (Wristband) ได้ที่จุดลงทะเบียนหน้างานในวันกิจกรรม
+    </p>
+
+    <button onclick="window.location.reload();" class="btn btn-outline-primary px-4 py-2 rounded-3">
+      ลงทะเบียนเพิ่มอีกคน
+    </button>
+  </div>
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxSwEAZbVmfWbCYMALKgYS6cqhPEbE1TH0koWw10ph7-u6VA4xzEYPbsmKi5zXM7v2q/exec";
+
+  const START_DATE = new Date(2026, 8, 18, 0, 0, 0);
+  const END_DATE = new Date(2026, 9, 2, 23, 59, 59);
+
+  const regForm = document.getElementById('regForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const statusAlert = document.getElementById('statusAlert');
+  const duplicateAlert = document.getElementById('duplicateAlert');
+  const duplicateMsg = document.getElementById('duplicateMsg');
+  const fullnameInput = document.getElementById('fullname');
+
+  function checkRegistrationPeriod() {
+    const now = new Date();
+    if (now < START_DATE) {
+      statusAlert.className = "alert alert-warning text-center fw-bold";
+      statusAlert.innerHTML = "⏳ ระบบยังไม่เปิดให้ลงทะเบียน<br><small class='fw-normal'>เปิดลงทะเบียนวันที่ 18 ก.ย. 2569 เวลา 00:00 น.</small>";
+      statusAlert.classList.remove('d-none');
+      disableForm();
+      return false;
+    } else if (now > END_DATE) {
+      statusAlert.className = "alert alert-danger text-center fw-bold";
+      statusAlert.innerHTML = "🔒 ปิดรับการลงทะเบียนแล้ว<br><small class='fw-normal'>สิ้นสุดการลงทะเบียนเมื่อวันที่ 2 ต.ค. 2569 เวลา 23:59 น.</small>";
+      statusAlert.classList.remove('d-none');
+      disableForm();
+      return false;
+    }
+    return true;
+  }
+
+  function disableForm() {
+    const inputs = regForm.querySelectorAll('input, button[type="submit"]');
+    inputs.forEach(el => el.disabled = true);
+  }
+
+  function closeDuplicateAlert() {
+    duplicateAlert.classList.add('d-none');
+  }
+
+  checkRegistrationPeriod();
+
+  function validateFullname(rawName) {
+    const trimmed = rawName.trim();
+    if (!trimmed) {
+      return { valid: false, message: "กรุณากรอกชื่อและนามสกุลให้ถูกต้อง" };
+    }
+    if (!/\s/.test(trimmed)) {
+      return { valid: false, message: "กรุณากรอกชื่อและนามสกุลให้ถูกต้อง (โปรดเคาะเว้นวรรคคั่นระหว่างชื่อและนามสกุล 1 ครั้ง)" };
+    }
+    if (/\s{2,}/.test(trimmed)) {
+      return { valid: false, message: "กรุณากรอกชื่อและนามสกุลให้ถูกต้อง (ห้ามเว้นวรรคเกิน 1 ครั้ง)" };
+    }
+    const nameRegex = /^[ก-๙a-zA-Z]+\s[ก-๙a-zA-Z]+$/;
+    if (!nameRegex.test(trimmed)) {
+      return { valid: false, message: "กรุณากรอกชื่อและนามสกุลให้ถูกต้อง (ห้ามมีตัวเลขหรืออักขระพิเศษ)" };
+    }
+    return { valid: true, cleanName: trimmed };
+  }
+
+  regForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    closeDuplicateAlert();
+
+    if (!checkRegistrationPeriod()) {
+      alert("ไม่อยู่ในช่วงเวลาที่เปิดรับลงทะเบียน");
+      return;
+    }
+
+    const nameCheck = validateFullname(fullnameInput.value);
+    if (!nameCheck.valid) {
+      alert(nameCheck.message);
+      fullnameInput.focus();
+      return;
+    }
+
+    const fullname = nameCheck.cleanName;
+
+    const selectedBranch = document.querySelector('input[name="branch"]:checked');
+    if (!selectedBranch) {
+      alert("กรุณาเลือกสาขาของคุณ");
+      return;
+    }
+
+    const selectedJoinStatus = document.querySelector('input[name="joinStatus"]:checked');
+    if (!selectedJoinStatus) {
+      alert("กรุณาเลือกระยะทางกิจกรรม (เดิน 2.5 KM หรือ วิ่ง 5 KM)");
+      return;
+    }
+
+    const healthConsent = document.getElementById('healthConsent');
+    if (!healthConsent.checked) {
+      alert("กรุณาติ๊กยอมรับข้อกำหนดด้านสุขภาพก่อนลงทะเบียน");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "กำลังตรวจสอบข้อมูล...";
+
+    const payload = {
+      fullname: fullname,
+      branch: selectedBranch.value,
+      joinStatus: selectedJoinStatus.value
+    };
+
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+      });
+      const response = await res.json();
+
+      if (response.status === 'success') {
+        document.getElementById('formSection').style.display = 'none';
+        document.getElementById('resultSection').style.display = 'block';
+        document.getElementById('showRegId').innerText = response.regId;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (response.status === 'duplicate') {
+        const msg = "⚠️ แจ้งเตือน: คุณได้ทำการลงทะเบียนแล้วในระบบ ไม่อาจลงทะเบียนซ้ำได้";
+        duplicateMsg.innerText = msg;
+        duplicateAlert.classList.remove('d-none');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        alert(msg);
+        
+        fullnameInput.value = '';
+        fullnameInput.focus();
+        
+        submitBtn.disabled = false;
+        submitBtn.innerText = "ลงทะเบียน";
+      } else {
+        alert('เกิดข้อผิดพลาด: ' + (response.message || 'ไม่สามารถบันทึกข้อมูลได้'));
+        submitBtn.disabled = false;
+        submitBtn.innerText = "ลงทะเบียน";
+      }
+    } catch (err) {
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อระบบ กรุณาลองใหม่อีกครั้ง');
+      submitBtn.disabled = false;
+      submitBtn.innerText = "ลงทะเบียน";
+    }
+  });
+</script>
+
+</body>
+</html>
