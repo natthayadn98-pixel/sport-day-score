@@ -8,7 +8,8 @@
   <link rel="icon" type="image/png" href="st.png">
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Eczar:wght@600;700;800&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Eczar:wght@600;700;800&family=Noto+Sans+Thai:wght@400;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -17,9 +18,7 @@
       --gold: #f6b800;
       --cream: #fff8e8;
     }
-
     * { box-sizing: border-box; }
-
     body {
       width: 100%;
       margin: 0;
@@ -30,10 +29,9 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
     }
-
     .page-shell {
       width: 100%;
-      min-height: calc(100 * min(var(--vh, 1vh), 1vh));
+      min-height: 100vh;
       position: relative;
       overflow-x: hidden;
       background-image:
@@ -43,33 +41,16 @@
         radial-gradient(circle at 19% 83%, rgba(83, 179, 255, .55) 0 13%, transparent 14%),
         linear-gradient(135deg, #fff3ab 0%, #ffdee7 36%, #d9f5ff 67%, #d7ffe5 100%);
     }
-
     .page-shell::before {
       content: "";
       position: absolute;
       inset: 0;
       pointer-events: none;
       opacity: .42;
-      background-image:
-        radial-gradient(circle, rgba(7, 23, 47, .13) 1.3px, transparent 1.6px),
-        radial-gradient(circle, rgba(255, 255, 255, .8) 1.5px, transparent 1.8px);
+      background-image: radial-gradient(circle, rgba(7, 23, 47, .13) 1.3px, transparent 1.6px), radial-gradient(circle, rgba(255, 255, 255, .8) 1.5px, transparent 1.8px);
       background-position: 0 0, 11px 11px;
       background-size: 23px 23px;
     }
-
-    .page-shell::after {
-      content: "";
-      position: absolute;
-      width: 520px;
-      height: 520px;
-      top: 30%;
-      left: -310px;
-      border-radius: 50%;
-      background: rgba(255, 111, 69, .16);
-      filter: blur(4px);
-      pointer-events: none;
-    }
-
     .content-frame {
       width: 100%;
       max-width: 1440px;
@@ -78,10 +59,8 @@
       position: relative;
       z-index: 1;
     }
-
     .display-font { font-family: "Eczar", "Noto Sans Thai", serif; }
     .eyebrow { letter-spacing: .16em; }
-
     .hero-panel {
       position: relative;
       overflow: hidden;
@@ -90,73 +69,43 @@
       background-color: #07172f;
       color: white;
     }
-
-    .hero-panel::after {
-      content: "";
-      position: absolute;
-      width: 430px;
-      height: 430px;
-      right: -170px;
-      bottom: -280px;
-      border: 1px solid rgba(255, 255, 255, .18);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .09);
-    }
-
-    .hero-panel::before {
-      content: "";
-      position: absolute;
-      width: 260px;
-      height: 260px;
-      right: 10%;
-      top: -170px;
-      border-radius: 50%;
-      background: rgba(246, 184, 0, .22);
-      filter: blur(4px);
-    }
-
     .trophy-halo {
       box-shadow: 0 0 0 12px rgba(255, 255, 255, .12), 0 0 55px rgba(255, 199, 0, .52);
       animation: trophyGlow 2.8s ease-in-out infinite;
     }
-
     .stat-card, .sport-card, .team-row {
       box-shadow: 0 14px 35px rgba(21, 36, 56, .11);
-      background-color: white;
       transition: transform 180ms ease, box-shadow 180ms ease;
     }
-
     .team-row:hover, .sport-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 20px 38px rgba(21, 36, 56, .18);
     }
-
-    .reveal { animation: riseIn 700ms both; }
-    .delay-1 { animation-delay: 100ms; }
-    .delay-2 { animation-delay: 190ms; }
-    .delay-3 { animation-delay: 280ms; }
-
-    @keyframes riseIn {
-      from { opacity: 0; transform: translateY(18px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
     @keyframes trophyGlow {
       0%, 100% { transform: rotate(-2deg) translateY(0); }
       50% { transform: rotate(2deg) translateY(-5px); }
     }
-
-    @media (max-width: 700px) {
-      .content-frame { padding-top: 18px; }
+    .popup-bounce { animation: bounceScale .45s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+    @keyframes bounceScale {
+      from { opacity: 0; transform: scale(0.7) translateY(40px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .gold-shine {
+      background: linear-gradient(135deg, #ffd700 0%, #fff2a3 50%, #f6b800 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
     }
   </style>
 </head>
 <body>
   <div class="page-shell">
-   <header class="content-frame pb-4" aria-label="ส่วนหัวแดชบอร์ด">
+   <header class="content-frame pb-4">
     <div class="flex flex-wrap items-center justify-between gap-4">
      <div class="flex items-center gap-3">
-      <div class="w-11 h-11 rounded-2xl bg-[#07172f] text-[#f6b800] flex items-center justify-center shadow-lg" aria-hidden="true"><i data-lucide="trophy" style="width:25px;height:25px;"></i>
+      <div class="w-11 h-11 rounded-2xl bg-[#07172f] text-[#f6b800] flex items-center justify-center shadow-lg">
+        <i data-lucide="trophy" style="width:25px;height:25px;"></i>
       </div>
       <div>
        <p class="eyebrow text-[11px] font-bold uppercase text-[#56708e]">SCORE DASHBOARD</p>
@@ -164,15 +113,17 @@
       </div>
      </div>
      
-     <!-- ปุ่มเมนูด้านบน -->
      <div class="flex flex-wrap items-center gap-3">
+       <button type="button" onclick="showCelebrationPopup(true)" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-[#07172f] shadow-md transition-all cursor-pointer">
+          <i data-lucide="sparkles" style="width:16px;height:16px;"></i> 
+          <span>ดูโพเดียมผู้ชนะ 🏆</span> 
+       </button>
        <a href="ranking.html" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold bg-[#11213a] text-white shadow-sm hover:bg-blue-900 transition-colors">
           <i data-lucide="list-ordered" style="width:16px;height:16px;"></i> 
           <span>ดูตารางคะแนนเต็ม</span> 
        </a>
-       
-       <button id="refresh-btn" type="button" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-[#11213a]"> 
-        <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;" aria-hidden="true"></i> 
+       <button id="refresh-btn" type="button" onclick="fetchScores(false)" class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold border border-[#eadfca] bg-white shadow-sm hover:bg-gray-100 transition-colors cursor-pointer disabled:opacity-60"> 
+        <i data-lucide="refresh-cw" id="refresh-icon" style="width:16px;height:16px;"></i> 
         <span>อัปเดตข้อมูล</span> 
         <span id="last-update-text" class="text-xs font-normal text-gray-500">รออัปเดต...</span> 
        </button>
@@ -180,110 +131,195 @@
     </div>
    </header>
 
-   <main class="content-frame pt-4" aria-label="ผลการแข่งขันกีฬาสี">
-    <!-- ผู้นำอันดับ 1 -->
-    <section class="hero-panel reveal rounded-[32px] mb-7" aria-labelledby="winner-heading">
+   <main class="content-frame pt-4">
+    <section class="hero-panel rounded-[32px] mb-7 cursor-pointer" onclick="showCelebrationPopup(true)" title="คลิกเพื่อดูจอฉลองคะแนน">
      <div class="flex flex-col lg:flex-row items-center justify-between min-h-[390px] p-7 sm:p-12 relative z-10 gap-8">
       <div class="flex flex-col justify-center w-full lg:w-3/5">
        <div class="inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 mb-5">
-        <i data-lucide="crown" class="text-[#f8cc38]" style="width:17px;height:17px;" aria-hidden="true"></i> 
+        <i data-lucide="crown" class="text-[#f8cc38]" style="width:17px;height:17px;"></i> 
         <span class="text-xs font-bold tracking-[0.14em] uppercase text-white">ผู้นำอันดับ 1 ในขณะนี้</span>
        </div>
-       <h2 id="winner-heading" class="display-font text-6xl md:text-8xl font-bold leading-[.95] max-w-2xl text-white" aria-live="polite">กำลังโหลด...</h2>
+       <h2 id="winner-heading" class="display-font text-6xl md:text-8xl font-bold leading-[.95] max-w-2xl text-white">กำลังโหลด...</h2>
        <p class="mt-5 max-w-lg leading-relaxed text-white/80">คะแนนรวมสูงสุดในปัจจุบัน นำห่างทีมอื่นๆ อย่างยอดเยี่ยม ขอแสดงความยินดีกับความทุ่มเทของนักกีฬาและกองเชียร์ทุกคน!</p>
        <div class="mt-7 flex flex-wrap items-center gap-3">
-        <div class="rounded-2xl bg-white/12 border border-white/15 px-6 py-4">
+        <div class="rounded-2xl bg-white/10 border border-white/15 px-6 py-4">
          <p class="text-[11px] font-bold tracking-wider uppercase text-white/60">คะแนนรวมทั้งหมด</p>
-         <p id="winner-score" class="text-3xl font-extrabold text-[#ffdb57] mt-1" aria-live="polite">0</p>
+         <p id="winner-score" class="text-3xl font-extrabold text-[#ffdb57] mt-1">0</p>
         </div>
-        <div class="rounded-2xl bg-white/12 border border-white/15 px-6 py-4">
+        <div class="rounded-2xl bg-white/10 border border-white/15 px-6 py-4">
          <p class="text-[11px] font-bold tracking-wider uppercase text-white/60">อันดับ</p>
-         <p id="winner-rank" class="text-3xl font-extrabold text-white mt-1" aria-live="polite">#1</p>
+         <p id="winner-rank" class="text-3xl font-extrabold text-white mt-1">#1</p>
         </div>
        </div>
       </div>
       <div class="w-full lg:w-2/5 flex justify-center lg:justify-end items-center py-6">
-       <div class="rounded-full bg-[#f6b800] text-[#07172f] p-8 sm:p-10 trophy-halo" aria-hidden="true">
-        <i data-lucide="trophy" style="width:100px;height:100px;"></i>
+       <div class="rounded-full bg-[#f6b800] text-[#07172f] p-8 sm:p-10 trophy-halo">
+         <i data-lucide="trophy" style="width:100px;height:100px;"></i>
        </div>
       </div>
      </div>
     </section>
 
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-9" aria-label="สรุปสถิติการแข่งขัน">
-     <article class="stat-card reveal delay-1 rounded-3xl p-5 border border-[#eadfca]">
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-9">
+     <article class="stat-card rounded-3xl p-5 border border-[#eadfca] bg-white">
       <div class="flex items-start justify-between">
        <div>
-        <p class="text-sm font-bold text-[#62718a]">คะแนนรวมทั้งโรงเรียน</p>
-        <p id="stat-total-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
+         <p class="text-sm font-bold text-[#62718a]">คะแนนรวมทั้งโรงเรียน</p>
+         <p id="stat-total-value" class="mt-2 text-3xl font-extrabold text-[#11213a]">0</p>
        </div>
-       <div class="rounded-2xl bg-[#fff1c6] p-3 text-[#b37500]" aria-hidden="true">
-        <i data-lucide="bar-chart-3" style="width:23px;height:23px;"></i>
-       </div>
+       <div class="rounded-2xl bg-[#fff1c6] p-3 text-[#b37500]"><i data-lucide="bar-chart-3"></i></div>
       </div>
      </article>
-     <article class="stat-card reveal delay-2 rounded-3xl p-5 border border-[#eadfca]">
+     <article class="stat-card rounded-3xl p-5 border border-[#eadfca] bg-white">
       <div class="flex items-start justify-between">
        <div>
-        <p class="text-sm font-bold text-[#62718a]">จำนวนทีมที่เข้าร่วม</p>
-        <p id="stat-teams-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
+         <p class="text-sm font-bold text-[#62718a]">จำนวนทีมที่เข้าร่วม</p>
+         <p id="stat-teams-value" class="mt-2 text-3xl font-extrabold text-[#11213a]">0</p>
        </div>
-       <div class="rounded-2xl bg-[#e5f5ec] p-3 text-[#168054]" aria-hidden="true">
-        <i data-lucide="users" style="width:23px;height:23px;"></i>
-       </div>
+       <div class="rounded-2xl bg-[#e5f5ec] p-3 text-[#168054]"><i data-lucide="users"></i></div>
       </div>
      </article>
-     <article class="stat-card reveal delay-3 rounded-3xl p-5 border border-[#eadfca]">
+     <article class="stat-card rounded-3xl p-5 border border-[#eadfca] bg-white">
       <div class="flex items-start justify-between">
        <div>
-        <p class="text-sm font-bold text-[#62718a]">คะแนนสูงสุด (High Score)</p>
-        <p id="stat-highest-value" class="mt-2 text-3xl font-extrabold text-[#11213a]" aria-live="polite">0</p>
+         <p class="text-sm font-bold text-[#62718a]">คะแนนสูงสุด (High Score)</p>
+         <p id="stat-highest-value" class="mt-2 text-3xl font-extrabold text-[#11213a]">0</p>
        </div>
-       <div class="rounded-2xl bg-[#e6eefc] p-3 text-[#2165d5]" aria-hidden="true">
-        <i data-lucide="medal" style="width:23px;height:23px;"></i>
-       </div>
+       <div class="rounded-2xl bg-[#e6eefc] p-3 text-[#2165d5]"><i data-lucide="medal"></i></div>
       </div>
      </article>
     </section>
 
-    <section class="mb-9" aria-labelledby="sports-heading">
+    <section class="mb-9">
      <div class="flex flex-wrap items-end justify-between gap-4 mb-4">
       <div>
        <p class="eyebrow text-[11px] font-bold uppercase text-[#1c9a66]">SPORTS BREAKDOWN</p>
-       <h2 id="sports-heading" class="display-font text-2xl font-bold">ผู้นำแต่ละประเภทกีฬา</h2>
-      </div><i data-lucide="activity" class="text-[#1c9a66]" style="width:23px;height:23px;" aria-hidden="true"></i>
+       <h2 class="display-font text-2xl font-bold">ผู้นำแต่ละประเภทกีฬา</h2>
+       <p class="text-xs text-gray-500 mt-0.5">💡 คลิกที่ปุ่มกีฬาเพื่อเปิดแท่นโพเดียม 1-8 ของกีฬานั้นๆ</p>
+      </div>
+      <i data-lucide="activity" class="text-[#1c9a66]"></i>
      </div>
-     <div id="sports-tabs" class="flex flex-wrap gap-2 mb-4" role="tablist" aria-label="เลือกประเภทกีฬา"></div>
-     <div id="sports-panels" aria-live="polite">
+     <div id="sports-tabs" class="flex flex-wrap gap-2 mb-4"></div>
+     <div id="sports-panels">
       <p class="text-gray-500 py-4">กำลังโหลดข้อมูลกีฬา...</p>
      </div>
     </section>
 
-    <!-- ตารางคะแนนรวม (จัดรูปแบบ Podium ตรงกลางสำหรับที่ 1) -->
-    <section aria-labelledby="leaderboard-heading">
+    <section>
      <div class="flex items-end justify-between mb-4">
       <div>
        <p class="eyebrow text-[11px] font-bold uppercase text-[#d65a35]">LEADERBOARD</p>
-       <h2 id="leaderboard-heading" class="display-font text-2xl font-bold">ตารางคะแนนรวมทุกสี</h2>
-      </div><i data-lucide="list-ordered" class="text-[#6a7d96]" style="width:23px;height:23px;" aria-hidden="true"></i>
+       <h2 class="display-font text-2xl font-bold">ตารางคะแนนรวมทุกสี</h2>
+      </div>
+      <i data-lucide="list-ordered" class="text-[#6a7d96]"></i>
      </div>
      
      <div class="flex flex-col gap-3 sm:gap-4">
-       <!-- ที่ 1 จะถูกสร้างและใส่ตรงนี้ (เต็มความกว้าง ตรงกลาง) -->
        <div id="leaderboard-podium-top" class="w-full flex flex-col gap-3 max-w-3xl mx-auto pb-2"></div>
-       <!-- อันดับอื่นๆ จะถูกสร้างและใส่ตรงนี้ (แบ่ง 2 คอลัมน์) -->
-       <div id="leaderboard-podium-rest" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4" aria-live="polite"></div>
+       <div id="leaderboard-podium-rest" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
      </div>
     </section>
    </main>
    
-   <footer class="content-frame pt-8 pb-10 text-center" aria-label="เครดิตระบบ">
+   <footer class="content-frame pt-8 pb-10 text-center">
     <p class="display-font font-semibold text-[#405773]">ระบบจัดการและรายงานผลคะแนนกีฬาสี (Live Score Dashboard)</p>
    </footer>
   </div>
 
+  <!-- 🌟 POP-UP โพเดียมโอลิมปิก อันดับ 1-8 🌟 -->
+  <div id="celebrationModal" class="fixed inset-0 z-50 bg-[#07172f]/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="popup-bounce relative w-full max-w-xl rounded-[2.5rem] bg-gradient-to-b from-[#11213a] to-[#07172f] border-2 border-amber-400/40 p-5 sm:p-7 text-center text-white shadow-2xl my-auto">
+      
+      <!-- ลำแสงตกแต่ง -->
+      <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <!-- ปุ่มปิด -->
+      <button onclick="closeCelebrationPopup()" class="absolute top-4 right-4 text-white/50 hover:text-white p-2 rounded-full hover:bg-white/10 transition cursor-pointer">
+        <i data-lucide="x" style="width:20px;height:20px;"></i>
+      </button>
+
+      <p class="text-[11px] font-bold tracking-[0.2em] uppercase text-amber-400 mb-1">SCORE UPDATE COMPLETED!</p>
+      
+      <!-- ชื่อกีฬา -->
+      <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold text-amber-200 mb-4">
+        <i data-lucide="trophy" style="width:14px;height:14px;"></i>
+        <span id="popupSportName">กีฬา: ฟุตบอล</span>
+      </div>
+
+      <!-- โพเดียม 3 เสา (อันดับ 2 ซ้าย, อันดับ 1 กลาง, อันดับ 3 ขวา) -->
+      <div class="grid grid-cols-3 gap-2 sm:gap-3 items-end mb-6 pt-6">
+        
+        <!-- เสาที่ 2 (รองชนะเลิศ 1 - ซ้าย) -->
+        <div class="flex flex-col items-center">
+          <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-slate-300 text-[#07172f] font-black flex items-center justify-center text-sm sm:text-base shadow-md border-2 border-slate-100 mb-1.5">
+            2
+          </div>
+          <p id="podium2-team" class="text-xs sm:text-sm font-bold text-white mb-1 truncate w-full text-center">-</p>
+          <div class="w-full bg-gradient-to-b from-slate-400/40 to-slate-600/40 border border-slate-300/40 rounded-t-2xl pt-3 pb-2 px-1 h-24 sm:h-28 flex flex-col justify-between items-center shadow-lg">
+            <span class="text-xs font-bold text-slate-200">🥈 รอง 1</span>
+            <div class="text-center">
+              <span id="podium2-pts" class="text-base sm:text-xl font-black text-slate-100">+8</span>
+              <span class="text-[10px] block text-slate-300">แต้ม</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- เสาที่ 1 (ชนะเลิศ - กลาง สูงสุด) -->
+        <div class="flex flex-col items-center relative -top-3">
+          <span class="text-2xl sm:text-3xl mb-0.5 animate-bounce">👑</span>
+          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-[#f6b800] to-[#ffd700] text-[#07172f] font-black flex items-center justify-center text-lg sm:text-xl shadow-[0_0_20px_rgba(246,184,0,0.6)] border-2 border-yellow-200 mb-1.5">
+            1
+          </div>
+          <p id="podium1-team" class="text-sm sm:text-base font-extrabold text-amber-300 mb-1 truncate w-full text-center">-</p>
+          <div class="w-full bg-gradient-to-b from-amber-500/50 to-amber-700/50 border-2 border-amber-400 rounded-t-2xl pt-3 pb-3 px-1 h-32 sm:h-36 flex flex-col justify-between items-center shadow-[0_0_25px_rgba(246,184,0,0.3)]">
+            <span class="text-xs font-black text-amber-200 uppercase tracking-wider">🥇 แชมป์</span>
+            <div class="text-center">
+              <span id="podium1-pts" class="text-xl sm:text-2xl font-black text-white">+10</span>
+              <span class="text-[10px] block text-amber-200 font-bold">แต้ม</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- เสาที่ 3 (รองชนะเลิศ 2 - ขวา) -->
+        <div class="flex flex-col items-center">
+          <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-amber-700 text-white font-black flex items-center justify-center text-sm sm:text-base shadow-md border-2 border-amber-600 mb-1.5">
+            3
+          </div>
+          <p id="podium3-team" class="text-xs sm:text-sm font-bold text-white mb-1 truncate w-full text-center">-</p>
+          <div class="w-full bg-gradient-to-b from-amber-800/40 to-amber-950/40 border border-amber-700/50 rounded-t-2xl pt-3 pb-2 px-1 h-20 sm:h-24 flex flex-col justify-between items-center shadow-lg">
+            <span class="text-xs font-bold text-amber-400">🥉 รอง 2</span>
+            <div class="text-center">
+              <span id="podium3-pts" class="text-base sm:text-xl font-black text-amber-200">+6</span>
+              <span class="text-[10px] block text-amber-400">แต้ม</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- อันดับ 4 - 8 (กล่องย่อยแบบกระชับ) -->
+      <div class="mb-4">
+        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider text-left mb-2 flex items-center gap-1.5">
+          <i data-lucide="list-ordered" style="width:13px;height:13px"></i>
+          <span>อันดับที่ 4 - 8 ในประเภทกีฬานี้</span>
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-1.5" id="restRanksContainer"></div>
+      </div>
+
+      <!-- สรุปผู้นำคะแนนรวมทั้งโรงเรียน -->
+      <div class="py-2.5 px-4 rounded-xl bg-white/5 border border-white/10 mb-4 flex items-center justify-between text-xs">
+        <span class="text-gray-300">ผู้นำคะแนนรวมทั้งหมดในขณะนี้:</span>
+        <span class="font-bold text-amber-300" id="popupOverallLeader">-</span>
+      </div>
+
+      <!-- ปุ่มกลับหน้า Dashboard -->
+      <button onclick="closeCelebrationPopup()" class="w-full py-3 sm:py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-[#f6b800] text-[#07172f] font-extrabold text-sm sm:text-base shadow-lg hover:brightness-105 active:scale-95 transition-all cursor-pointer">
+        กลับสู่หน้า Dashboard 🏆
+      </button>
+    </div>
+  </div>
+
   <script>
-    // ⚠️ 1. เอา URL ของ Web App จาก Google Apps Script มาวางตรงนี้ ⚠️
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJwe0GNwM3YBuprny-c9PHyfJEB6DfC-zyDUi0zjqkbFhYORaeErY6tt4kXm3K3FBi/exec";
 
     const teamStyles = {
@@ -297,66 +333,89 @@
       "สีน้ำเงิน": { border: "border-blue-200", bg: "bg-blue-50", text: "text-blue-700", scoreColor: "#1d4ed8" },
       "default": { border: "border-gray-200", bg: "bg-gray-50", text: "text-gray-800", scoreColor: "#11213a" }
     };
-
     const teamEmojis = {
-      "สีแดง": "❤️", "สีเหลือง": "💛", "สีเขียว": "💚", "สีฟ้า": "🩵",
-      "สีม่วง": "💜", "สีส้ม": "🧡", "สีชมพู": "🩷", "สีน้ำเงิน": "💙"
+      "สีแดง": "❤️",
+      "สีเหลือง": "💛",
+      "สีเขียว": "💚",
+      "สีฟ้า": "🩵",
+      "สีม่วง": "💜",
+      "สีส้ม": "🧡",
+      "สีชมพู": "🩷",
+      "สีน้ำเงิน": "💙"
     };
 
-    const refreshButton = document.getElementById("refresh-btn");
-    refreshButton.addEventListener("click", () => fetchScores(false));
+    let lastDataString = "";
+    let latestGlobalData = null;
+    let latestChangedSport = "";
 
-    function setStatus(message) {
-      document.getElementById("last-update-text").textContent = message;
+    function renderData(data) {
+      if (!data) return;
+      latestGlobalData = data;
+      const total = data.total || {};
+      const sports = data.sports || {};
+      const sortedTotalScores = Object.entries(total).sort(function(a, b) {
+        return Number(b[1]) - Number(a[1]);
+      });
+      updateDashboardUI(sortedTotalScores, sports);
+      updateSportsBreakdown(sports);
+      if (window.lucide) lucide.createIcons();
     }
 
-    let lastDataString = "";
-
-    async function fetchScores(isAuto = false) {
+    async function fetchScores(isAuto) {
+      if (typeof isAuto === "undefined") isAuto = false;
       const icon = document.getElementById("refresh-icon");
       const button = document.getElementById("refresh-btn");
+      const statusText = document.getElementById("last-update-text");
 
-      icon.classList.add("animate-spin");
+      if (icon) icon.classList.add("animate-spin");
       
-      if (!isAuto) {
+      if (!isAuto && button) {
         button.disabled = true;
-        setStatus("กำลังดึงข้อมูล...");
+        statusText.textContent = "กำลังเชื่อมต่อ...";
+        const cachedData = localStorage.getItem("cachedDashboardData");
+        if (cachedData) {
+          try {
+            renderData(JSON.parse(cachedData));
+            statusText.textContent = "อัปเดตข้อมูลใหม่...";
+          } catch(e) {}
+        }
       }
 
       try {
         const url = SCRIPT_URL + "?action=getData&t=" + new Date().getTime();
-        const response = await fetch(url, { cache: "no-store" });
-        if (!response.ok) throw new Error("ไม่สามารถเชื่อมต่อข้อมูลคะแนนได้");
-
+        const response = await fetch(url);
         const data = await response.json();
-        console.log("ข้อมูลที่ได้รับจาก Server (Dashboard):", data);
-        
         const newDataString = JSON.stringify(data);
 
-        // จัดการและเรนเดอร์ใหม่เฉพาะเมื่อข้อมูลมีการเปลี่ยนแปลงหรือผู้ใช้กดอัปเดตเอง
-        if (newDataString !== lastDataString || !isAuto) {
+        if (newDataString !== lastDataString) {
+          const hadPreviousData = (lastDataString !== "");
+          
+          if (hadPreviousData && latestGlobalData && latestGlobalData.sports && data.sports) {
+            for (const spName in data.sports) {
+              const oldSportStr = JSON.stringify(latestGlobalData.sports[spName] || {});
+              const newSportStr = JSON.stringify(data.sports[spName] || {});
+              if (oldSportStr !== newSportStr) {
+                latestChangedSport = spName;
+                break;
+              }
+            }
+          }
+
           lastDataString = newDataString;
+          localStorage.setItem("cachedDashboardData", newDataString);
+          renderData(data);
 
-          const total = data && data.total ? data.total : {};
-          const sports = data && data.sports ? data.sports : {};
-          const sortedTotalScores = Object.entries(total).sort((a, b) => Number(b[1]) - Number(a[1]));
-
-          updateDashboardUI(sortedTotalScores, sports);
-          updateSportsBreakdown(sports);
+          if (hadPreviousData) {
+            showCelebrationPopup(false);
+          }
         }
+        if (statusText) statusText.textContent = "(เช็คข้อมูลล่าสุด " + new Date().toLocaleTimeString("th-TH") + ")";
 
-        const now = new Date();
-        setStatus(`(เช็คข้อมูลล่าสุด ${now.toLocaleTimeString("th-TH")})`);
       } catch (error) {
-        if (!isAuto) {
-          setStatus("(เชื่อมต่อขัดข้อง)");
-          document.getElementById("sports-panels").innerHTML =
-            '<p class="text-red-600 py-4 text-center border-2 border-dashed border-red-200 rounded-xl">ไม่สามารถโหลดข้อมูลคะแนนได้ โปรดลองอัปเดตอีกครั้ง</p>';
-        }
-        console.error("Fetch Error:", error);
+        if (!isAuto && statusText) statusText.textContent = "(เชื่อมต่อขัดข้อง)";
       } finally {
-        icon.classList.remove("animate-spin");
-        if (!isAuto) button.disabled = false;
+        if (icon) icon.classList.remove("animate-spin");
+        if (!isAuto && button) button.disabled = false;
       }
     }
 
@@ -365,113 +424,77 @@
       const podiumTop = document.getElementById("leaderboard-podium-top");
       const podiumRest = document.getElementById("leaderboard-podium-rest");
 
-      if (scores.length === 0) {
-        winnerHeading.textContent = "รอผลการแข่งขัน";
-        winnerHeading.className = "display-font text-5xl md:text-7xl font-bold leading-[.95] max-w-xl text-white";
+      if (!scores || scores.length === 0) {
+        if (winnerHeading) winnerHeading.textContent = "รอผลการแข่งขัน";
         document.getElementById("winner-score").textContent = "0";
         document.getElementById("winner-rank").textContent = "-";
-        document.getElementById("stat-total-value").textContent = "0";
-        document.getElementById("stat-teams-value").textContent = "0";
-        document.getElementById("stat-highest-value").textContent = "0";
-        podiumTop.innerHTML = '';
-        podiumRest.innerHTML = '<p class="md:col-span-2 text-center text-[#62718a] py-7 bg-white/70 border border-white rounded-2xl w-full">ยังไม่มีข้อมูลคะแนนรวม</p>';
         return;
       }
 
       const topScore = Number(scores[0][1]);
-      const topTeams = topScore > 0 ? scores.filter(team => Number(team[1]) === topScore).map(team => team[0]) : [];
-      let winnerText = "รอผลการแข่งขัน";
+      const topTeams = topScore > 0 ? scores.filter(function(team) {
+        return Number(team[1]) === topScore;
+      }).map(function(team) {
+        return team[0];
+      }) : [];
+      
+      let winnerText = topTeams.length > 0 ? topTeams.join(" และ ") : "รอผลการแข่งขัน";
 
-      if (topTeams.length === 1) {
-        winnerText = topTeams[0];
-      } else if (topTeams.length === 2) {
-        winnerText = topTeams.join(" และ ");
-      } else if (topTeams.length > 2) {
-        winnerText = `${topTeams.slice(0, -1).join(", ")} และ ${topTeams[topTeams.length - 1]}`;
-      }
-
-      winnerHeading.textContent = winnerText;
-      winnerHeading.className = topTeams.length > 1
-        ? "display-font text-4xl md:text-5xl font-bold leading-[.95] max-w-2xl text-white"
-        : "display-font text-6xl md:text-8xl font-bold leading-[.95] max-w-xl text-white";
-
+      if (winnerHeading) winnerHeading.textContent = winnerText;
       document.getElementById("winner-score").textContent = topScore.toLocaleString();
       document.getElementById("winner-rank").textContent = topTeams.length > 1 ? "#1 (ร่วม)" : topScore > 0 ? "#1" : "-";
-
-      const totalScore = scores.reduce((sum, team) => sum + Number(team[1]), 0);
-      document.getElementById("stat-total-value").textContent = totalScore.toLocaleString();
+      
+      const totalScoreSum = scores.reduce(function(sum, team) {
+        return sum + Number(team[1]);
+      }, 0);
+      document.getElementById("stat-total-value").textContent = totalScoreSum.toLocaleString();
       document.getElementById("stat-teams-value").textContent = String(scores.length);
       document.getElementById("stat-highest-value").textContent = topScore.toLocaleString();
 
-      podiumTop.replaceChildren();
-      podiumRest.replaceChildren();
+      if (podiumTop) podiumTop.innerHTML = "";
+      if (podiumRest) podiumRest.innerHTML = "";
 
-      let currentRank = 1;
+      let currentRank = 1; 
       let previousScore = null;
 
-      scores.forEach(([teamName, rawPoints]) => {
-        const points = Number(rawPoints);
-        let displayRank = "-";
-        let rankLabel = "ไม่มีคะแนน";
+      scores.forEach(function(item) {
+        const teamName = item[0];
+        const points = Number(item[1]);
+        let displayRank = "-"; 
+        let rankLabel = "ไม่มีคะแนน"; 
         let rankEmojis = "";
 
         if (points > 0) {
           if (previousScore !== null && points < previousScore) currentRank++;
-          previousScore = points;
-          displayRank = currentRank;
-          rankLabel = `อันดับที่ ${currentRank}`;
-          
-          if (currentRank === 1) rankEmojis = '<span class="text-2xl ml-1">🥇</span>';
-          else if (currentRank === 2) rankEmojis = '<span class="text-xl ml-1">🥈</span>';
-          else if (currentRank === 3) rankEmojis = '<span class="text-xl ml-1">🥉</span>';
+          previousScore = points; 
+          displayRank = currentRank; 
+          rankLabel = "อันดับที่ " + currentRank;
+          if (currentRank === 1) rankEmojis = "🥇";
+          else if (currentRank === 2) rankEmojis = "🥈";
+          else if (currentRank === 3) rankEmojis = "🥉";
         }
 
         const style = teamStyles[teamName] || teamStyles.default;
         const emoji = teamEmojis[teamName] || "";
         
-        let sportsBadges = '';
-        for (const [sport, colors] of Object.entries(sportsData)) {
-            if (colors[teamName] && colors[teamName] > 0) {
-                // ปรับป้ายคะแนนย่อยให้อ่านง่ายขึ้นเหมือนใน ranking.html
-                const badgeStyle = "bg-white text-gray-700 border border-gray-200 shadow-sm";
-                sportsBadges += `<span class="inline-block ${badgeStyle} text-[10px] font-medium px-2 py-0.5 rounded mr-1 mt-1">${sport}: ${colors[teamName]}</span>`;
+        let sportsBadges = "";
+        if (sportsData) {
+          for (const sport in sportsData) {
+            const colors = sportsData[sport];
+            if (colors && colors[teamName] && colors[teamName] > 0) {
+              sportsBadges += '<span class="inline-block bg-white text-gray-600 border border-white shadow-sm text-[10px] px-2 py-0.5 rounded mr-1 mt-1">' + sport + ': ' + colors[teamName] + '</span>';
             }
+          }
         }
-        if(!sportsBadges) {
-            sportsBadges = `<span class="inline-block text-gray-400 text-[10px] mt-1 bg-white/50 px-2 py-0.5 rounded">ยังไม่มีข้อมูลคะแนน</span>`;
-        }
+        if (!sportsBadges) sportsBadges = '<span class="inline-block text-gray-400 text-[10px] mt-1 bg-white/50 px-2 py-0.5 rounded">ยังไม่มีข้อมูลคะแนน</span>';
 
-        let cardHTML = '';
         const isWinner = (currentRank === 1 && points > 0);
-        const baseBoxStyle = `border-2 ${style.border} ${style.bg} rounded-[1.25rem] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm hover:shadow-md transform hover:-translate-y-1 transition-all relative team-row`;
-        
-        if (isWinner) {
-            cardHTML = `
-            <article class="${baseBoxStyle} w-full z-30">
+        const cardHTML = `
+            <article class="border-2 ${style.border} ${style.bg} rounded-[1.25rem] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between shadow-sm relative team-row ${isWinner ? 'w-full z-30' : ''}">
                 <div class="flex items-center gap-4 flex-1">
-                    <div class="w-12 h-12 shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 text-2xl ${style.text}">${displayRank}</div>
+                    <div class="${isWinner ? 'w-12 h-12 text-2xl' : 'w-10 h-10 text-xl'} shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 ${style.text}">${displayRank}</div>
                     <div class="min-w-0 flex-1">
-                        <p class="font-extrabold text-[#11213a] text-xl sm:text-2xl flex flex-wrap items-center gap-2">
-                            ${emoji} ${teamName} ${rankEmojis}
-                            <span class="text-[10px] sm:text-xs font-bold ${style.text} bg-white border border-white px-2 py-0.5 rounded-full shadow-sm">${rankLabel}</span>
-                        </p>
-                        <div class="flex flex-wrap mt-1.5">${sportsBadges}</div>
-                    </div>
-                </div>
-                <div class="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 mt-3 sm:mt-0 flex flex-col items-start sm:items-end">
-                    <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border ${style.border} inline-block">
-                        <p class="text-4xl sm:text-5xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
-                    </div>
-                    <p class="text-[11px] font-bold uppercase mt-2 text-[#7e8b9d]">คะแนนรวม</p>
-                </div>
-            </article>`;
-        } else {
-            cardHTML = `
-            <article class="${baseBoxStyle}">
-                <div class="flex items-center gap-4 flex-1">
-                    <div class="w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-extrabold bg-white shadow-sm border border-gray-100 text-xl ${style.text}">${displayRank}</div>
-                    <div class="min-w-0 flex-1">
-                        <p class="font-extrabold text-[#11213a] text-lg sm:text-xl flex flex-wrap items-center gap-2">
+                        <p class="font-extrabold text-[#11213a] ${isWinner ? 'text-xl sm:text-2xl' : 'text-lg sm:text-xl'} flex flex-wrap items-center gap-2">
                             ${emoji} ${teamName} ${rankEmojis}
                             <span class="text-[10px] sm:text-xs font-bold ${style.text} bg-white border border-white px-2 py-0.5 rounded-full shadow-sm">${rankLabel}</span>
                         </p>
@@ -479,18 +502,17 @@
                     </div>
                 </div>
                 <div class="text-left sm:text-right w-full sm:w-auto pt-3 sm:pt-0 mt-3 sm:mt-0 flex flex-col items-start sm:items-end">
-                    <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm border ${style.border} inline-block">
-                        <p class="text-3xl sm:text-4xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+                    <div class="bg-white px-3.5 py-1.5 rounded-xl shadow-sm border ${style.border} inline-block">
+                        <p class="text-3xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
                     </div>
-                    <p class="text-[11px] font-bold uppercase mt-1.5 text-[#7e8b9d]">คะแนนรวม</p>
+                    <p class="text-[11px] font-bold uppercase mt-1 text-[#7e8b9d]">คะแนนรวม</p>
                 </div>
             </article>`;
-        }
 
-        if (isWinner) {
-            podiumTop.insertAdjacentHTML('beforeend', cardHTML);
-        } else {
-            podiumRest.insertAdjacentHTML('beforeend', cardHTML);
+        if (isWinner && podiumTop) {
+          podiumTop.insertAdjacentHTML('beforeend', cardHTML);
+        } else if (podiumRest) {
+          podiumRest.insertAdjacentHTML('beforeend', cardHTML);
         }
       });
     }
@@ -498,98 +520,199 @@
     function updateSportsBreakdown(sportsData) {
       const tabsContainer = document.getElementById("sports-tabs");
       const panelsContainer = document.getElementById("sports-panels");
-      tabsContainer.replaceChildren();
-      panelsContainer.replaceChildren();
+      if (!tabsContainer || !panelsContainer) return;
 
-      const sports = Object.entries(sportsData);
+      tabsContainer.innerHTML = "";
+      panelsContainer.innerHTML = "";
+
+      const sports = Object.entries(sportsData || {});
       if (!sports.length) {
         panelsContainer.innerHTML = '<p class="text-gray-500 py-4 text-center border-2 border-dashed border-gray-200 rounded-xl w-full">ยังไม่มีการบันทึกคะแนนกีฬาประเภทใดๆ</p>';
         return;
       }
 
-      sports.forEach(([sport, colors], sportIndex) => {
-        const sportId = `sport-${sport.replace(/[^\w\u0E00-\u0E7F]+/g, "-")}-${sportIndex}`;
-        const isFirst = sportIndex === 0;
+      sports.forEach(function(item, sportIndex) {
+        const sport = item[0];
+        const colors = item[1];
+        const isFirst = (sportIndex === 0);
 
         const tab = document.createElement("button");
         tab.type = "button";
-        tab.setAttribute("role", "tab");
-        tab.setAttribute("aria-selected", String(isFirst));
-        tab.setAttribute("aria-controls", `${sportId}-panel`);
-        tab.className = `rounded-full px-5 py-2 text-sm font-bold border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#11213a] ${isFirst ? "bg-[#11213a] text-white border-transparent" : "bg-white text-[#11213a] border-[#eadfca]"}`;
-        tab.textContent = sport;
+        tab.className = `sport-tab-btn inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold border transition-all cursor-pointer shadow-xs ${isFirst ? "bg-[#11213a] text-white border-transparent" : "bg-white text-[#11213a] border-[#eadfca] hover:bg-gray-50"}`;
+        tab.innerHTML = `<span>🏆</span><span>${sport}</span>`;
+        tab.title = `คลิกเพื่อดูโพเดียมผู้ชนะกีฬา: ${sport}`;
         tabsContainer.appendChild(tab);
 
         const panel = document.createElement("div");
-        panel.id = `${sportId}-panel`;
-        panel.setAttribute("role", "tabpanel");
-        panel.className = `grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full ${isFirst ? "" : "hidden"}`;
+        panel.className = `sport-panel grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 w-full ${isFirst ? "" : "hidden"}`;
 
-        let currentRank = 1;
+        let currentRank = 1; 
         let previousScore = null;
 
-        Object.entries(colors)
-          .sort((a, b) => Number(b[1]) - Number(a[1]))
-          .forEach(([teamName, rawPoints]) => {
-            const points = Number(rawPoints);
-            let displayRank = "-";
+        const sortedColors = Object.entries(colors || {}).sort(function(a, b) {
+          return Number(b[1]) - Number(a[1]);
+        });
+
+        sortedColors.forEach(function(colItem) {
+            const teamName = colItem[0];
+            const points = Number(colItem[1]);
+            let displayRank = "-"; 
             let rankLabel = "ไม่มีคะแนน";
-            let iconName = "minus";
 
             if (points > 0) {
               if (previousScore !== null && points < previousScore) currentRank++;
-              previousScore = points;
-              displayRank = currentRank;
-              rankLabel = `อันดับที่ ${currentRank}`;
-              iconName = currentRank === 1 ? "trophy" : currentRank <= 3 ? "medal" : "award";
+              previousScore = points; 
+              displayRank = currentRank; 
+              rankLabel = "อันดับที่ " + currentRank;
             }
 
             const style = teamStyles[teamName] || teamStyles.default;
             const emoji = teamEmojis[teamName] || "";
             const rankBgClass = points > 0 ? `${style.bg} ${style.text}` : "bg-gray-100 text-gray-400";
 
-            const card = document.createElement("article");
-            card.className = `sport-card rounded-2xl p-5 border ${style.border} bg-white relative`;
-            card.innerHTML = `
-              <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold ${rankBgClass} text-sm">${displayRank}</div>
-                  <span class="font-extrabold text-lg text-[#11213a] flex items-center gap-1.5">${emoji} ${teamName}</span>
+            panel.innerHTML += `
+              <article class="sport-card rounded-2xl p-5 border ${style.border} bg-white relative">
+                <div class="flex items-center justify-between mb-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center font-extrabold ${rankBgClass} text-sm">${displayRank}</div>
+                    <span class="font-extrabold text-lg text-[#11213a]">${emoji} ${teamName}</span>
+                  </div>
                 </div>
-                <i data-lucide="${iconName}" class="${points > 0 ? style.text : "text-gray-300"}" style="width:22px;height:22px;"></i>
-              </div>
-              <p class="text-3xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
-              <p class="mt-1 text-sm font-bold text-[#66758d]">แต้มสะสม (${rankLabel})</p>
-            `;
-            panel.appendChild(card);
-          });
-
+                <p class="text-3xl font-extrabold" style="color:${style.scoreColor};">${points.toLocaleString()}</p>
+                <p class="mt-1 text-sm font-bold text-[#66758d]">แต้มสะสม (${rankLabel})</p>
+              </article>`;
+        });
         panelsContainer.appendChild(panel);
 
-        tab.addEventListener("click", () => {
-          [...tabsContainer.children].forEach((item, index) => {
-            const selected = index === sportIndex;
-            item.setAttribute("aria-selected", String(selected));
-            item.className = `rounded-full px-5 py-2 text-sm font-bold border transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#11213a] ${selected ? "bg-[#11213a] text-white border-transparent" : "bg-white text-[#11213a] border-[#eadfca]"}`;
+        tab.addEventListener("click", function() {
+          const allTabs = document.querySelectorAll(".sport-tab-btn");
+          const allPanels = document.querySelectorAll(".sport-panel");
+
+          allTabs.forEach(function(btn, idx) {
+            btn.className = `sport-tab-btn inline-flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-bold border transition-all cursor-pointer shadow-xs ${idx === sportIndex ? "bg-[#11213a] text-white border-transparent" : "bg-white text-[#11213a] border-[#eadfca] hover:bg-gray-50"}`;
+          });
+          allPanels.forEach(function(p, idx) {
+            if (idx === sportIndex) {
+              p.classList.remove("hidden");
+            } else {
+              p.classList.add("hidden");
+            }
           });
 
-          [...panelsContainer.children].forEach((item, index) => {
-            item.classList.toggle("hidden", index !== sportIndex);
-          });
+          showCelebrationPopup(true, sport);
         });
       });
-
-      if (window.lucide) lucide.createIcons();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    function showCelebrationPopup(forceFire, specifiedSport) {
+      if (typeof forceFire === "undefined") forceFire = false;
+
+      if (!latestGlobalData) {
+        fetchScores(false);
+        setTimeout(function() { showCelebrationPopup(forceFire, specifiedSport); }, 800);
+        return;
+      }
+
+      const sports = latestGlobalData.sports || {};
+      const sportKeys = Object.keys(sports);
+
+      const targetSport = specifiedSport || latestGlobalData.latestSport || latestChangedSport || sportKeys[sportKeys.length - 1] || "ผลการแข่งขันล่าสุด";
+      const sportScores = sports[targetSport] || {};
+
+      let sortedSport = Object.entries(sportScores)
+        .map(function(item) {
+          return { name: item[0], points: Number(item[1]) || 0 };
+        })
+        .sort(function(a, b) {
+          return b.points - a.points;
+        });
+
+      if (sortedSport.length === 0) {
+        sortedSport = Object.entries(latestGlobalData.total || {})
+          .map(function(item) {
+            return { name: item[0], points: Number(item[1]) || 0 };
+          })
+          .sort(function(a, b) {
+            return b.points - a.points;
+          });
+      }
+
+      const r1 = sortedSport[0] || { name: "-", points: 0 };
+      const r2 = sortedSport[1] || { name: "-", points: 0 };
+      const r3 = sortedSport[2] || { name: "-", points: 0 };
+
+      const sportEl = document.getElementById("popupSportName");
+      if (sportEl) sportEl.textContent = "กีฬา: " + targetSport;
+      
+      const p1Team = document.getElementById("podium1-team");
+      const p1Pts = document.getElementById("podium1-pts");
+      if (p1Team) p1Team.textContent = (teamEmojis[r1.name] || "") + " " + r1.name;
+      if (p1Pts) p1Pts.textContent = "+" + r1.points;
+
+      const p2Team = document.getElementById("podium2-team");
+      const p2Pts = document.getElementById("podium2-pts");
+      if (p2Team) p2Team.textContent = (teamEmojis[r2.name] || "") + " " + r2.name;
+      if (p2Pts) p2Pts.textContent = "+" + r2.points;
+
+      const p3Team = document.getElementById("podium3-team");
+      const p3Pts = document.getElementById("podium3-pts");
+      if (p3Team) p3Team.textContent = (teamEmojis[r3.name] || "") + " " + r3.name;
+      if (p3Pts) p3Pts.textContent = "+" + r3.points;
+
+      const restContainer = document.getElementById("restRanksContainer");
+      if (restContainer) {
+        restContainer.innerHTML = "";
+        for (let i = 3; i < 8; i++) {
+          const item = sortedSport[i] || { name: "-", points: 0 };
+          const rankNum = i + 1;
+          restContainer.innerHTML += `
+            <div class="rounded-xl bg-white/5 border border-white/10 p-2 text-center flex flex-col justify-between">
+              <span class="text-[10px] text-gray-400 font-bold block mb-0.5">#${rankNum}</span>
+              <p class="text-xs font-bold text-white truncate w-full" title="${item.name}">${teamEmojis[item.name] || ''} ${item.name}</p>
+              <span class="text-xs font-black text-amber-300 mt-1 block">+${item.points}</span>
+            </div>
+          `;
+        }
+      }
+
+      const totalSorted = Object.entries(latestGlobalData.total || {}).sort(function(a, b) {
+        return Number(b[1]) - Number(a[1]);
+      });
+      const leaderEl = document.getElementById("popupOverallLeader");
+      if (leaderEl && totalSorted.length > 0) {
+        leaderEl.textContent = totalSorted[0][0] + " (" + Number(totalSorted[0][1]).toLocaleString() + " แต้ม)";
+      }
+
+      const modal = document.getElementById("celebrationModal");
+      if (modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+      }
+
+      if (typeof confetti === "function") {
+        try {
+          confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+          setTimeout(function() {
+            confetti({ particleCount: 120, spread: 110, origin: { y: 0.55 } });
+          }, 250);
+        } catch(e) {}
+      }
+    }
+
+    function closeCelebrationPopup() {
+      const modal = document.getElementById("celebrationModal");
+      if (modal) {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
       if (window.lucide) lucide.createIcons();
       fetchScores(false);
-
-      // ตั้งเวลาให้โหลดข้อมูลใหม่เบื้องหลังทุก 20 วินาที
-      setInterval(() => {
+      setInterval(function() {
         fetchScores(true);
-      }, 20000);
+      }, 15000); 
     });
   </script>
 </body>
